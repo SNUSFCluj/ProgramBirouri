@@ -124,10 +124,10 @@ export default function App() {
                   : 'salvat în baza de date'}
               </span>
             )}
+            {cont && <Meniu cont={cont} onIesit={() => setCont(null)} onCont={setCont} />}
             <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
               {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
             </button>
-            {cont && <Meniu cont={cont} onIesit={() => setCont(null)} onCont={setCont} />}
           </div>
         </div>
       </header>
