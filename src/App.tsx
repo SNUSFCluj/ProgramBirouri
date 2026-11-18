@@ -103,6 +103,7 @@ export default function App() {
             <div className="brand">
               <img src="./icon-192.png" alt="" className="logo" />
               Program <i>birouri</i>
+              <small className="versiune" title="Versiunea care rulează">v{__VERSIUNE__}</small>
             </div>
             <nav className="nav">
               <button className={`pill-btn${pagina === 'import' ? ' primary' : ''}`} onClick={() => setPagina('import')}>Import</button>
