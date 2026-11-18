@@ -210,3 +210,12 @@ table.zile th { background: var(--page-solid); }
   font-size: 13px;
 }
 table.grila tr.r-real td.gol { opacity: 0.4; }
+
+/* Selectorul de lună și pagina goală */
+.selector-luna { display: flex; align-items: center; gap: 6px; }
+.selector-luna .sel { height: 38px; }
+.selector-luna .sel.an { width: 88px; }
+.pill-btn.sageata { width: 38px; padding: 0; justify-content: center; font-size: 18px; line-height: 1; }
+.luna-import { margin-bottom: 16px; padding: 10px 16px; border-radius: 12px; background: var(--accent-soft); font-size: 13.5px; }
+.stare.atentie { background: var(--warn-bg); color: var(--warn-fg); }
+.gol-pagina { max-width: 640px; margin: 48px auto; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.7; }

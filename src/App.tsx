@@ -7,15 +7,16 @@ import { Import } from './components/Import';
 import { Grila } from './components/Grila';
 import { Oameni } from './components/Oameni';
 import { Detalii } from './components/Detalii';
+import { SelectorLuna } from './components/SelectorLuna';
 
 type Pagina = 'import' | 'program' | 'oameni';
 
 export default function App() {
   const [luni, setLuni] = useState<Record<string, Luna>>(() => incarcaTot());
+  // Pornim pe luna curentă; utilizatorul o schimbă din bara de sus.
   const [cheie, setCheie] = useState<string>(() => {
-    const t = incarcaTot();
-    const k = Object.keys(t).sort();
-    return k.length > 0 ? k[k.length - 1] : '';
+    const acum = new Date();
+    return cheieLuna(acum.getFullYear(), acum.getMonth() + 1);
   });
   const [pagina, setPagina] = useState<Pagina>('import');
   const [tema, setTema] = useState<'dark' | 'light'>(() => citesteTema());
@@ -29,17 +30,15 @@ export default function App() {
   const fi = luna?.fi ?? null;
   const legatura = useMemo(() => leaga(program, fi), [program, fi]);
 
+  // Importul intră întotdeauna în luna aleasă în bara de sus.
+  const [anAles, lunaAleasa] = cheie.split('-').map(Number);
+
   function primesteProgram(p: Program) {
-    setLuni((l) => {
-      const nou = salveazaProgram(l, p);
-      return nou;
-    });
-    setCheie(cheieLuna(p.an, p.luna));
+    setLuni((l) => salveazaProgram(l, p));
   }
 
-  function primesteFI(f: ImportFI, an: number, lunaNr: number) {
-    setLuni((l) => salveazaFI(l, f, an, lunaNr));
-    setCheie(cheieLuna(an, lunaNr));
+  function primesteFI(f: ImportFI) {
+    setLuni((l) => salveazaFI(l, f, anAles, lunaAleasa));
   }
 
   const cheiLuni = Object.keys(luni).sort();
@@ -56,20 +55,13 @@ export default function App() {
 
           <nav className="nav">
             <button className={`pill-btn${pagina === 'import' ? ' primary' : ''}`} onClick={() => setPagina('import')}>Import</button>
-            <button className={`pill-btn${pagina === 'program' ? ' primary' : ''}`} onClick={() => setPagina('program')} disabled={!program}>Program</button>
-            <button className={`pill-btn${pagina === 'oameni' ? ' primary' : ''}`} onClick={() => setPagina('oameni')} disabled={!program}>Oameni</button>
+            <button className={`pill-btn${pagina === 'program' ? ' primary' : ''}`} onClick={() => setPagina('program')}>Program</button>
+            <button className={`pill-btn${pagina === 'oameni' ? ' primary' : ''}`} onClick={() => setPagina('oameni')}>Oameni</button>
           </nav>
 
           <div className="spatiu" />
 
-          {cheiLuni.length > 0 && (
-            <select className="sel" value={cheie} onChange={(e) => setCheie(e.target.value)}>
-              {cheiLuni.map((k) => {
-                const [a, m] = k.split('-');
-                return <option key={k} value={k}>{NUME_LUNI[Number(m) - 1]} {a}</option>;
-              })}
-            </select>
-          )}
+          <SelectorLuna cheie={cheie} cuDate={cheiLuni} onSchimba={setCheie} />
           <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
             {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
           </button>
@@ -90,7 +82,21 @@ export default function App() {
           </div>
         )}
         {pagina === 'import' && (
-          <Import program={program} fi={fi} legatura={legatura} onProgram={primesteProgram} onFI={primesteFI} />
+          <Import
+            program={program}
+            fi={fi}
+            legatura={legatura}
+            an={anAles}
+            luna={lunaAleasa}
+            onProgram={primesteProgram}
+            onFI={primesteFI}
+          />
+        )}
+        {pagina !== 'import' && !program && (
+          <div className="gol-pagina">
+            Nu e încărcat niciun program pentru {NUME_LUNI[lunaAleasa - 1]} {anAles}.
+            Alege altă lună din bara de sus sau încarcă fișierele la Import.
+          </div>
         )}
         {pagina === 'program' && program && (
           <Grila program={program} legatura={legatura} onOm={setOmDeschis} />

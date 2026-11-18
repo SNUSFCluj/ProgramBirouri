@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import type { ImportFI, Program } from '../types';
 import type { Legatura } from '../lib/legatura';
-import { citesteProgram } from '../import/program';
+import { citesteProgram, lunaDinNumeFisier } from '../import/program';
 import { citesteFI } from '../import/fi';
 import { NUME_LUNI } from '../lib/timp';
 
@@ -10,22 +10,31 @@ interface Props {
   program: Program | null;
   fi: ImportFI | null;
   legatura: Legatura;
+  /** Luna aleasă în bara de sus — acolo intră tot ce se importă. */
+  an: number;
+  luna: number;
   onProgram: (p: Program) => void;
-  onFI: (f: ImportFI, an: number, luna: number) => void;
+  onFI: (f: ImportFI) => void;
 }
 
-export function Import({ program, fi, legatura, onProgram, onFI }: Props) {
+export function Import({ program, fi, legatura, an, luna, onProgram, onFI }: Props) {
   const refXls = useRef<HTMLInputElement>(null);
   const refPdf = useRef<HTMLInputElement>(null);
   const [stare, setStare] = useState('');
   const [eroare, setEroare] = useState('');
+  const [atentie, setAtentie] = useState('');
+  const lunaScrisa = `${NUME_LUNI[luna - 1]} ${an}`;
 
   async function incarcaExcel(f: File) {
-    setEroare(''); setStare('Citesc programul…');
+    setEroare(''); setAtentie(''); setStare('Citesc programul…');
     try {
-      const p = citesteProgram(await f.arrayBuffer(), f.name);
+      const p = citesteProgram(await f.arrayBuffer(), f.name, { an, luna });
       onProgram(p);
-      setStare(`Program încărcat: ${p.foi.length} foi, ${p.foi.reduce((a, b) => a + b.oameni.length, 0)} oameni.`);
+      const dinNume = lunaDinNumeFisier(f.name);
+      if (dinNume && (dinNume.an !== an || dinNume.luna !== luna)) {
+        setAtentie(`Numele fișierului arată ${NUME_LUNI[dinNume.luna - 1]} ${dinNume.an}, dar l-am pus pe ${lunaScrisa}, luna aleasă sus.`);
+      }
+      setStare(`Program încărcat pe ${lunaScrisa}: ${p.foi.length} foi, ${p.foi.reduce((a, b) => a + b.oameni.length, 0)} oameni.`);
     } catch (e) {
       setEroare(`Nu am putut citi fișierul Excel: ${(e as Error).message}`);
       setStare('');
@@ -33,15 +42,16 @@ export function Import({ program, fi, legatura, onProgram, onFI }: Props) {
   }
 
   async function incarcaPdf(f: File) {
-    setEroare(''); setStare('Citesc fișele…');
+    setEroare(''); setAtentie(''); setStare('Citesc fișele…');
     try {
       const r = await citesteFI(await f.arrayBuffer(), f.name, (p) => {
         setStare(`Citesc fișele… pagina ${p.pagina} din ${p.total}`);
       });
-      const an = r.an ?? program?.an ?? new Date().getFullYear();
-      const luna = r.luna ?? program?.luna ?? new Date().getMonth() + 1;
-      onFI(r, an, luna);
-      setStare(`Fișe încărcate: ${r.oameni.length} oameni, ${NUME_LUNI[luna - 1]} ${an}.`);
+      onFI(r);
+      if (r.luna != null && r.an != null && (r.luna !== luna || r.an !== an)) {
+        setAtentie(`Fișele sunt pe ${NUME_LUNI[r.luna - 1]} ${r.an}, dar le-am pus pe ${lunaScrisa}, luna aleasă sus.`);
+      }
+      setStare(`Fișe încărcate pe ${lunaScrisa}: ${r.oameni.length} oameni.`);
     } catch (e) {
       setEroare(`Nu am putut citi PDF-ul: ${(e as Error).message}`);
       setStare('');
@@ -50,6 +60,10 @@ export function Import({ program, fi, legatura, onProgram, onFI }: Props) {
 
   return (
     <div className="import">
+      <div className="luna-import">
+        Lucrăm pe <b>{lunaScrisa}</b>. Tot ce încarci aici intră pe luna asta;
+        o schimbi din bara de sus.
+      </div>
       <div className="carduri">
         <div className="card">
           <h3>Programul lunar</h3>
@@ -85,6 +99,7 @@ export function Import({ program, fi, legatura, onProgram, onFI }: Props) {
       </div>
 
       {stare && <div className="stare">{stare}</div>}
+      {atentie && <div className="stare atentie">{atentie}</div>}
       {eroare && <div className="stare rau">{eroare}</div>}
 
       {program && fi && (
