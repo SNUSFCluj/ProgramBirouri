@@ -1,6 +1,6 @@
 /** Meniul contului: schimbarea parolei și ieșirea din cont. */
 import { useEffect, useRef, useState } from 'react';
-import { iesi, schimbaParola, SUPERADMIN, type Cont } from '../cloud/auth';
+import { iesi, schimbaParola, type Cont } from '../cloud/auth';
 import { Conturi } from './Conturi';
 
 export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
@@ -23,13 +23,10 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
     };
   }, [deschis]);
 
-  // Contul care administrează tot nu se arată nicăieri sub numele lui.
-  const afisat = cont.utilizator === SUPERADMIN ? 'Cont' : cont.utilizator;
-
   return (
     <div className="meniu-zona" ref={ref}>
       <button className={`pill-btn${deschis ? ' primary' : ''}`} onClick={() => setDeschis(!deschis)} aria-expanded={deschis}>
-        {afisat}
+        {cont.utilizator}
       </button>
       {deschis && (
         <div className="meniu">
@@ -50,7 +47,7 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
         </div>
       )}
       {parolaD && <SchimbaParola onInchide={() => setParolaD(false)} />}
-      {conturiD && <Conturi onInchide={() => setConturiD(false)} />}
+      {conturiD && <Conturi eu={cont} onInchide={() => setConturiD(false)} />}
     </div>
   );
 }

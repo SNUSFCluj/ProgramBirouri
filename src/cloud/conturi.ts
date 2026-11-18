@@ -17,9 +17,15 @@ export const COLECTIA_CONTURI = 'conturi';
 
 export interface ContSalvat {
   uid: string;
+  /** Numele omului, scris în clar: „Simona Marțian”. */
+  nume: string;
+  /** Numele cu care intră în aplicație. */
   utilizator: string;
   rol: Rol;
+  /** Fals = nu mai poate intra, dar contul rămâne în listă. */
   activ: boolean;
+  /** Adevărat = scos din listă de tot; nu mai poate intra niciodată. */
+  sters?: boolean;
   creat: number;
 }
 
@@ -59,6 +65,7 @@ export async function contulMeu(uid: string, utilizator: string): Promise<ContSa
 
   const nou: ContSalvat = {
     uid,
+    nume: utilizator,
     utilizator,
     rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin',
     activ: true,
@@ -68,28 +75,33 @@ export async function contulMeu(uid: string, utilizator: string): Promise<ContSa
   return nou;
 }
 
-/** Toate conturile, afară de cel care administrează tot. */
-export async function listaConturi(): Promise<ContSalvat[]> {
+/** Conturile, fără cele șterse. Cel care administrează se vede doar pe sine. */
+export async function listaConturi(uidulMeu: string): Promise<ContSalvat[]> {
   const c = await porneste();
   if (!c) return [];
   const snap = await c.fs.getDocs(c.fs.collection(c.db, COLECTIA_CONTURI));
   const out: ContSalvat[] = [];
   snap.forEach((d) => {
     const cont = d.data() as ContSalvat;
-    if (cont.rol !== 'superadmin') out.push(cont);
+    if (cont.sters) return;
+    if (cont.rol === 'superadmin' && cont.uid !== uidulMeu) return;
+    out.push(cont);
   });
-  return out.sort((a, b) => a.utilizator.localeCompare(b.utilizator, 'ro'));
+  return out.sort((a, b) => {
+    if (a.rol !== b.rol) return a.rol === 'superadmin' ? -1 : 1;
+    return (a.nume || a.utilizator).localeCompare(b.nume || b.utilizator, 'ro');
+  });
 }
 
 /** Face un cont nou, fără să-l scoată din sesiune pe cel care îl creează. */
-export async function faceCont(utilizator: string, parola: string): Promise<ContSalvat> {
+export async function faceCont(nume: string, utilizator: string, parola: string): Promise<ContSalvat> {
   const c = await porneste();
   if (!c) throw new Error('Salvarea online nu e configurată.');
-  const nume = utilizator.trim().toLowerCase();
-  if (!/^[a-z0-9._-]{3,}$/.test(nume)) {
+  const utilizatorul = utilizator.trim().toLowerCase();
+  if (!/^[a-z0-9._-]{3,}$/.test(utilizatorul)) {
     throw new Error('Numele de utilizator poate avea doar litere mici, cifre, punct, liniuță sau underscore, cel puțin trei.');
   }
-  if (nume === SUPERADMIN) throw new Error('Numele acesta e deja luat.');
+  if (utilizatorul === SUPERADMIN) throw new Error('Numele acesta e deja luat.');
   if (parola.length < 6) throw new Error('Parola trebuie să aibă cel puțin șase caractere.');
 
   const [{ initializeApp, deleteApp }, a] = await Promise.all([
@@ -99,10 +111,11 @@ export async function faceCont(utilizator: string, parola: string): Promise<Cont
   const aparte = initializeApp(configFirebase, `cont-nou-${Date.now()}`);
   try {
     const auth = a.getAuth(aparte);
-    const r = await a.createUserWithEmailAndPassword(auth, `${nume}@${DOMENIU}`, parola);
+    const r = await a.createUserWithEmailAndPassword(auth, `${utilizatorul}@${DOMENIU}`, parola);
     const cont: ContSalvat = {
       uid: r.user.uid,
-      utilizator: nume,
+      nume: nume.trim() || utilizatorul,
+      utilizator: utilizatorul,
       rol: 'admin',
       activ: true,
       creat: Date.now(),
@@ -120,9 +133,22 @@ export async function faceCont(utilizator: string, parola: string): Promise<Cont
   }
 }
 
-/** Blochează sau deblochează un cont. */
+/** Oprește sau repornește accesul unui cont. */
 export async function schimbaAccesul(uid: string, activ: boolean): Promise<void> {
   const c = await porneste();
   if (!c) return;
   await c.fs.updateDoc(c.fs.doc(c.db, COLECTIA_CONTURI, uid), { activ });
+}
+
+/**
+ * Scoate contul din listă și îi taie accesul pentru totdeauna.
+ *
+ * Documentul rămâne în baza de date, marcat ca șters: dacă l-am șterge de tot,
+ * omul ar intra din nou și aplicația i-ar scrie alt document, cu acces bun.
+ * Contul din Firebase Authentication se șterge doar din consolă.
+ */
+export async function stergeCont(uid: string): Promise<void> {
+  const c = await porneste();
+  if (!c) return;
+  await c.fs.updateDoc(c.fs.doc(c.db, COLECTIA_CONTURI, uid), { activ: false, sters: true });
 }
