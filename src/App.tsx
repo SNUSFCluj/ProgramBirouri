@@ -8,6 +8,8 @@ import { Grila } from './components/Grila';
 import { Oameni } from './components/Oameni';
 import { Detalii } from './components/Detalii';
 import { SelectorLuna } from './components/SelectorLuna';
+import { Jurnal } from './components/Jurnal';
+import { VERSIUNE } from './jurnal';
 import { cloudPornit, incarcaLuni, salveazaLuna, type StareCloud } from './cloud';
 import { urmaresteContul, type Cont } from './cloud/auth';
 import { Logare } from './components/Logare';
@@ -22,6 +24,17 @@ export default function App() {
   const [pagina, setPagina] = useState<Pagina>('import');
   const [tema, setTema] = useState<'dark' | 'light'>(() => citesteTema());
   const [omDeschis, setOmDeschis] = useState<OmLegat | null>(null);
+  const [jurnalD, setJurnalD] = useState(false);
+  const [actualizat, setActualizat] = useState(false);
+
+  // La prima deschidere după o actualizare, spunem că s-a schimbat ceva.
+  useEffect(() => {
+    try {
+      const vazuta = localStorage.getItem('programBirouri.versiuneVazuta');
+      if (vazuta && vazuta !== VERSIUNE) setActualizat(true);
+      localStorage.setItem('programBirouri.versiuneVazuta', VERSIUNE);
+    } catch { /* fără browser sau fără drept de scriere */ }
+  }, []);
   const [stareCloud, setStareCloud] = useState<StareCloud>(cloudPornit() ? 'citeste' : 'oprit');
   const [eroareCloud, setEroareCloud] = useState('');
   const [cont, setCont] = useState<Cont | null>(null);
@@ -103,7 +116,9 @@ export default function App() {
             <div className="brand">
               <img src="./icon-192.png" alt="" className="logo" />
               Program <i>birouri</i>
-              <small className="versiune" title="Versiunea care rulează">v{__VERSIUNE__}</small>
+              <button className="versiune" onClick={() => setJurnalD(true)} title="Jurnal de versiuni">
+                v{VERSIUNE}
+              </button>
             </div>
             <nav className="nav">
               <button className={`pill-btn${pagina === 'import' ? ' primary' : ''}`} onClick={() => setPagina('import')}>Import</button>
@@ -134,6 +149,11 @@ export default function App() {
       </header>
 
       <main className="corp">
+        {actualizat && (
+          <div className="banda clic" onClick={() => { setActualizat(false); setJurnalD(true); }}>
+            Aplicația a fost actualizată la v{VERSIUNE}. Apasă aici ca să vezi ce s-a schimbat.
+          </div>
+        )}
         {dateVechiSterse && !program && (
           <div className="banda">
             Regulile de citire s-au schimbat, așa că importul vechi a fost șters.
@@ -170,6 +190,8 @@ export default function App() {
           <Oameni legatura={legatura} onOm={setOmDeschis} />
         )}
       </main>
+
+      {jurnalD && <Jurnal onInchide={() => setJurnalD(false)} />}
 
       {omDeschis && program && (
         <Detalii om={omDeschis} zile={program.zile} an={program.an} luna={program.luna} onInchide={() => setOmDeschis(null)} />
