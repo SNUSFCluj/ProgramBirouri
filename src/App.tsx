@@ -77,6 +77,12 @@ export default function App() {
       </header>
 
       <main className="corp">
+        {pagina !== 'import' && program && legatura.panaLaZi != null && legatura.panaLaZi < program.zile && (
+          <div className="banda">
+            Fișele acoperă doar zilele {legatura.deLaZi ?? 1}–{legatura.panaLaZi} din {NUME_LUNI[program.luna - 1]}.
+            Zilele de după rămân pe 0:00, pentru că nu avem încă informații despre ele.
+          </div>
+        )}
         {pagina === 'import' && (
           <Import program={program} fi={fi} legatura={legatura} onProgram={primesteProgram} onFI={primesteFI} />
         )}

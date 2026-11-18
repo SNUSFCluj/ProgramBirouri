@@ -196,3 +196,11 @@ table.lista tr.we td { background: var(--we); }
 .modal-corp { overflow: auto; padding: 0 22px 20px; }
 table.zile { border: none; }
 table.zile th { background: var(--page-solid); }
+
+/* Perioadă parțială */
+.banda {
+  max-width: 1200px; margin: 0 auto 16px; padding: 10px 16px; border-radius: 12px;
+  background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-line);
+  font-size: 13px;
+}
+table.grila tr.r-real td.gol { opacity: 0.4; }

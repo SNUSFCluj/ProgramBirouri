@@ -73,6 +73,9 @@ export interface ImportFI {
   fisier: string;
   luna: number | null;
   an: number | null;
+  /** Perioada acoperită de fișe, citită din antet („Luna: 01.10.2026 - 10.10.2026”). */
+  deLaZi: number | null;
+  panaLaZi: number | null;
   oameni: OmFI[];
 }
 

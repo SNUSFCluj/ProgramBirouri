@@ -74,7 +74,11 @@ export function Import({ program, fi, legatura, onProgram, onFI }: Props) {
           {fi && (
             <div className="rezumat">
               <b>{fi.fisier}</b>
-              <div className="muted">{fi.oameni.length} fișe{legatura.norma != null ? ` · normă ${legatura.norma} ore` : ''}</div>
+              <div className="muted">
+                {fi.oameni.length} fișe
+                {legatura.norma != null ? ` · normă ${legatura.norma} ore` : ''}
+                {fi.panaLaZi != null ? ` · zilele ${fi.deLaZi ?? 1}–${fi.panaLaZi}` : ''}
+              </div>
             </div>
           )}
         </div>

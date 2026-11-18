@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';
+import * as XLSX from 'xlsx';
+const b=readFileSync(process.argv[2]);
+const wb=XLSX.read(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength),{type:'array'});
+const ws=wb.Sheets['EA LP'];
+console.log('ref', ws['!ref']);
+const m=XLSX.utils.sheet_to_json<unknown[]>(ws,{header:1,raw:true,blankrows:true,defval:null}) as unknown[][];
+console.log('rand 10 lungime', m[9].length);
+console.log('celule 30..40:', m[9].slice(30,41));
+console.log('AI10 direct:', ws['AI10']);

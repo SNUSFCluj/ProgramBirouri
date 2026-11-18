@@ -47,7 +47,8 @@ export function Grila({ program, legatura, onOm }: Props) {
           </thead>
           <tbody>
             {oameni.map((o, idx) => (
-              <BlocOm key={`${o.program.nume}-${idx}`} om={o} zile={zile} weekend={weekend} onOm={onOm} />
+              <BlocOm key={`${o.program.nume}-${idx}`} om={o} zile={zile} weekend={weekend} onOm={onOm}
+                panaLaZi={legatura.panaLaZi} />
             ))}
           </tbody>
         </table>
@@ -56,11 +57,12 @@ export function Grila({ program, legatura, onOm }: Props) {
   );
 }
 
-function BlocOm({ om, zile, weekend, onOm }: {
+function BlocOm({ om, zile, weekend, onOm, panaLaZi }: {
   om: OmLegat;
   zile: number[];
   weekend: (z: number) => boolean;
   onOm: (om: OmLegat) => void;
+  panaLaZi: number | null;
 }) {
   const p = om.program;
   const real = om.fi?.orePeZi ?? {};
@@ -102,9 +104,11 @@ function BlocOm({ om, zile, weekend, onOm }: {
           const r = real[z] ?? 0;
           const pr = p.orePeZi[z] ?? 0;
           const dif = r && pr ? r - pr : 0;
+          // zilele de după perioada acoperită de fișe nu au informații
+          const inAfara = panaLaZi != null && z > panaLaZi;
           return (
-            <td key={z} className={`c-zi${weekend(z) ? ' we' : ''}${dif > 0 ? ' plus' : dif < 0 ? ' minus' : ''}`}>
-              {r ? scrieDurata(r) : ''}
+            <td key={z} className={`c-zi${weekend(z) ? ' we' : ''}${dif > 0 ? ' plus' : dif < 0 ? ' minus' : ''}${inAfara ? ' gol' : ''}`}>
+              {om.fi ? scrieDurata(r) : ''}
             </td>
           );
         })}

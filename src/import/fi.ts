@@ -107,6 +107,8 @@ export async function citesteFI(
   const dupaMarca = new Map<string, OmFI>();
   let luna: number | null = null;
   let an: number | null = null;
+  let deLaZi: number | null = null;
+  let panaLaZi: number | null = null;
 
   for (let p = 1; p <= doc.numPages; p++) {
     const pagina = await doc.getPage(p);
@@ -153,8 +155,13 @@ export async function citesteFI(
       dupaMarca.set(marca, om);
     }
 
-    const mPer = /Luna: (\d{2})\.(\d{2})\.(\d{4})/.exec(textPagina);
-    if (mPer && luna == null) { luna = Number(mPer[2]); an = Number(mPer[3]); }
+    const mPer = /Luna: (\d{2})\.(\d{2})\.(\d{4})\s*-\s*(\d{2})\.(\d{2})\.(\d{4})/.exec(textPagina);
+    if (mPer && luna == null) {
+      luna = Number(mPer[2]);
+      an = Number(mPer[3]);
+      deLaZi = Number(mPer[1]);
+      panaLaZi = Number(mPer[4]);
+    }
 
     const cen = centre(randuri);
     if (!cen) continue;
@@ -200,5 +207,12 @@ export async function citesteFI(
   }
 
   const oameni = [...dupaMarca.values()].sort((a, b) => a.nume.localeCompare(b.nume, 'ro'));
-  return { fisier: numeFisier, luna, an, oameni };
+  // dacă antetul nu dă perioada, o deducem din ultima zi care apare în fișe
+  if (panaLaZi == null) {
+    let max = 0;
+    for (const o of oameni) for (const l of o.linii) max = Math.max(max, l.ziFinal);
+    panaLaZi = max > 0 ? max : null;
+    if (deLaZi == null) deLaZi = 1;
+  }
+  return { fisier: numeFisier, luna, an, deLaZi, panaLaZi, oameni };
 }

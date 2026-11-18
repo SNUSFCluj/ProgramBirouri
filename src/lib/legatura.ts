@@ -18,6 +18,9 @@ export interface Legatura {
   faraProgram: OmFI[];
   /** Norma lunii, în ore, așa cum o scriu fișele. */
   norma: number | null;
+  /** Perioada acoperită de fișe. Zilele din afara ei nu au informații. */
+  deLaZi: number | null;
+  panaLaZi: number | null;
 }
 
 export function leaga(program: Program | null, fi: ImportFI | null): Legatura {
@@ -52,5 +55,7 @@ export function leaga(program: Program | null, fi: ImportFI | null): Legatura {
     faraFisa: oameni.filter((o) => !o.fi),
     faraProgram: (fi?.oameni ?? []).filter((o) => !folosite.has(o.marca)),
     norma,
+    deLaZi: fi?.deLaZi ?? null,
+    panaLaZi: fi?.panaLaZi ?? null,
   };
 }
