@@ -127,7 +127,7 @@ export default function App() {
             <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
               {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
             </button>
-            {cont && <Meniu cont={cont} onIesit={() => setCont(null)} />}
+            {cont && <Meniu cont={cont} onIesit={() => setCont(null)} onCont={setCont} />}
           </div>
         </div>
       </header>

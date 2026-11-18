@@ -21,6 +21,8 @@ export type Rol = 'superadmin' | 'admin';
 
 export interface Cont {
   uid: string;
+  /** Numele omului, scris în clar: „Balan Adrian”. */
+  nume: string;
   utilizator: string;
   rol: Rol;
 }
@@ -53,7 +55,7 @@ async function porneste(): Promise<Auth | null> {
 function contDinUtilizator(uid: string, email: string | null): Cont | null {
   if (!email) return null;
   const utilizator = email.split('@')[0].toLowerCase();
-  return { uid, utilizator, rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin' };
+  return { uid, nume: utilizator, utilizator, rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin' };
 }
 
 /** Citește rolul din baza de date și oprește conturile blocate. */
@@ -64,7 +66,7 @@ async function completeaza(cont: Cont): Promise<Cont> {
     await iesi();
     throw new Error('Contul acesta nu mai are voie să intre.');
   }
-  return salvat ? { ...cont, rol: salvat.rol } : cont;
+  return salvat ? { ...cont, rol: salvat.rol, nume: salvat.nume || cont.utilizator } : cont;
 }
 
 /** Anunță cine e conectat. Prima dată trimite și contul ținut minte de browser. */

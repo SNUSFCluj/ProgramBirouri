@@ -88,9 +88,12 @@ button { cursor: pointer; }
 .top-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px 16px; }
 .top-stanga { display: flex; align-items: center; gap: 16px; min-width: 0; justify-self: start; }
 .top-mijloc { justify-self: center; }
-.top-dreapta { display: flex; align-items: center; gap: 8px; justify-self: end; }
+.top-dreapta { display: flex; align-items: center; gap: 8px; justify-self: end; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
 
 /* Pe ecran îngust luna trece pe rândul ei, tot pe mijloc, ca să nu se suprapună. */
+@media (max-width: 1340px) {
+  .stare-cloud { display: none; }
+}
 @media (max-width: 1120px) {
   .top-row { grid-template-columns: 1fr auto; row-gap: 10px; }
   .top-mijloc { grid-row: 2; grid-column: 1 / -1; justify-self: center; }
@@ -203,7 +206,13 @@ table.lista .num { text-align: right; }
 table.lista tr.we td { background: var(--we); }
 
 /* Detalii */
-.modal-fundal { position: fixed; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(3px); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.modal-fundal {
+  position: fixed; inset: 0; z-index: 60; padding: 24px; overflow-y: auto;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+  display: flex; align-items: flex-start; justify-content: center;
+}
+/* margin auto ține fereastra pe mijloc când încape și o lasă să curgă când nu. */
+.modal-fundal > * { margin: auto; }
 .modal { background: var(--page-solid); border: 1px solid var(--line2); border-radius: 18px; box-shadow: var(--shadow); width: min(1000px, 100%); max-height: 88vh; display: flex; flex-direction: column; }
 .modal-cap { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 22px; border-bottom: 1px solid var(--line); }
 .modal-cap h2 { margin: 0 0 2px; font-size: 18px; }

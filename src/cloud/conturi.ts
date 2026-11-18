@@ -140,6 +140,13 @@ export async function schimbaAccesul(uid: string, activ: boolean): Promise<void>
   await c.fs.updateDoc(c.fs.doc(c.db, COLECTIA_CONTURI, uid), { activ });
 }
 
+/** Schimbă numele scris în clar al unui cont. */
+export async function redenumeste(uid: string, nume: string): Promise<void> {
+  const c = await porneste();
+  if (!c) return;
+  await c.fs.updateDoc(c.fs.doc(c.db, COLECTIA_CONTURI, uid), { nume: nume.trim() });
+}
+
 /**
  * Scoate contul din listă și îi taie accesul pentru totdeauna.
  *

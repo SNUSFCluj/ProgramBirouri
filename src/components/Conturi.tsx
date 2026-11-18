@@ -1,9 +1,9 @@
 /** Administrarea conturilor. O vede doar cel care administrează aplicația. */
 import { useEffect, useState } from 'react';
 import type { Cont } from '../cloud/auth';
-import { faceCont, listaConturi, schimbaAccesul, stergeCont, type ContSalvat } from '../cloud/conturi';
+import { faceCont, listaConturi, redenumeste, schimbaAccesul, stergeCont, type ContSalvat } from '../cloud/conturi';
 
-export function Conturi({ eu, onInchide }: { eu: Cont; onInchide: () => void }) {
+export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont) => void; onInchide: () => void }) {
   const [lista, setLista] = useState<ContSalvat[] | null>(null);
   const [nume, setNume] = useState('');
   const [utilizator, setUtilizator] = useState('');
@@ -52,6 +52,19 @@ export function Conturi({ eu, onInchide }: { eu: Cont; onInchide: () => void }) 
     setEroare(''); setMesaj('');
     try {
       await stergeCont(c.uid);
+      await reincarca();
+    } catch (err) {
+      setEroare((err as Error).message);
+    }
+  }
+
+  async function schimbaNumele(c: ContSalvat) {
+    const nou = prompt(`Numele scris în clar pentru contul ${c.utilizator}:`, c.nume || c.utilizator);
+    if (nou == null || !nou.trim()) return;
+    setEroare(''); setMesaj('');
+    try {
+      await redenumeste(c.uid, nou);
+      if (c.uid === eu.uid) onCont({ ...eu, nume: nou.trim() });
       await reincarca();
     } catch (err) {
       setEroare((err as Error).message);
@@ -116,7 +129,11 @@ export function Conturi({ eu, onInchide }: { eu: Cont; onInchide: () => void }) 
                 <tr><td colSpan={5} className="muted">Niciun cont.</td></tr>
               ) : lista.map((c) => (
                 <tr key={c.uid}>
-                  <td><b>{c.nume || c.utilizator}</b></td>
+                  <td>
+                    <button className="nume-btn" onClick={() => { void schimbaNumele(c); }} title="Schimbă numele">
+                      {c.nume || c.utilizator}
+                    </button>
+                  </td>
                   <td className="mono">{c.utilizator}</td>
                   <td>
                     <span className={`eticheta${c.rol === 'superadmin' ? ' tare' : ''}`}>

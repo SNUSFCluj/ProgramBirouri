@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { iesi, schimbaParola, type Cont } from '../cloud/auth';
 import { Conturi } from './Conturi';
 
-export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
+export function Meniu({ cont, onIesit, onCont }: { cont: Cont; onIesit: () => void; onCont: (c: Cont) => void }) {
   const [deschis, setDeschis] = useState(false);
   const [parolaD, setParolaD] = useState(false);
   const [conturiD, setConturiD] = useState(false);
@@ -26,7 +26,7 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
   return (
     <div className="meniu-zona" ref={ref}>
       <button className={`pill-btn${deschis ? ' primary' : ''}`} onClick={() => setDeschis(!deschis)} aria-expanded={deschis}>
-        {cont.utilizator}
+        {cont.nume || cont.utilizator}
       </button>
       {deschis && (
         <div className="meniu">
@@ -47,7 +47,7 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
         </div>
       )}
       {parolaD && <SchimbaParola onInchide={() => setParolaD(false)} />}
-      {conturiD && <Conturi eu={cont} onInchide={() => setConturiD(false)} />}
+      {conturiD && <Conturi eu={cont} onCont={onCont} onInchide={() => setConturiD(false)} />}
     </div>
   );
 }
