@@ -9,6 +9,9 @@ import { Oameni } from './components/Oameni';
 import { Detalii } from './components/Detalii';
 import { SelectorLuna } from './components/SelectorLuna';
 import { cloudPornit, incarcaLuni, salveazaLuna, type StareCloud } from './cloud';
+import { urmaresteContul, type Cont } from './cloud/auth';
+import { Logare } from './components/Logare';
+import { Meniu } from './components/Meniu';
 
 type Pagina = 'import' | 'program' | 'oameni';
 
@@ -21,10 +24,18 @@ export default function App() {
   const [omDeschis, setOmDeschis] = useState<OmLegat | null>(null);
   const [stareCloud, setStareCloud] = useState<StareCloud>(cloudPornit() ? 'citeste' : 'oprit');
   const [eroareCloud, setEroareCloud] = useState('');
+  const [cont, setCont] = useState<Cont | null>(null);
+  const [verificaCont, setVerificaCont] = useState(cloudPornit());
+
+  // Aflăm dacă browserul ține minte un cont conectat.
+  useEffect(() => {
+    if (!cloudPornit()) return;
+    void urmaresteContul((c) => { setCont(c); setVerificaCont(false); });
+  }, []);
 
   // La pornire aducem lunile salvate online și le punem peste cele din browser.
   useEffect(() => {
-    if (!cloudPornit()) return;
+    if (!cloudPornit() || !cont) return;
     let valabil = true;
     incarcaLuni()
       .then((dinCloud) => {
@@ -38,7 +49,7 @@ export default function App() {
         setEroareCloud(e.message);
       });
     return () => { valabil = false; };
-  }, []);
+  }, [cont]);
 
   /** Salvează o lună și în browser, și online. */
   function pastreaza(schimba: (l: Record<string, Luna>) => Record<string, Luna>, cheieLunii: string) {
@@ -77,6 +88,13 @@ export default function App() {
 
   const cheiLuni = Object.keys(luni).sort();
 
+  if (cloudPornit() && verificaCont) {
+    return <div className="gol-pagina">Se verifică contul…</div>;
+  }
+  if (cloudPornit() && !cont) {
+    return <Logare onIntrat={setCont} />;
+  }
+
   return (
     <div className="app">
       <header className="top">
@@ -109,6 +127,7 @@ export default function App() {
             <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
               {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
             </button>
+            {cont && <Meniu cont={cont} onIesit={() => setCont(null)} />}
           </div>
         </div>
       </header>

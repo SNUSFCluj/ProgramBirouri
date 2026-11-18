@@ -1,7 +1,14 @@
 # Program birouri
 
-Compară programul lunar al personalului de locomotivă (Excel, Depoul Cluj) cu
-orele reale din fișele individuale ale serviciului prestat (PDF P1, CARES).
+Aplicație pentru biroul de mișcare al Depoului Cluj Călători. Pune programul
+lunar al personalului de locomotivă lângă orele lucrate în realitate și arată,
+zi de zi și om cu om, unde se abat unele de la altele.
+
+Programul lunii se încarcă din fișierul Excel al depoului, iar orele reale din
+PDF-ul cu fișele individuale ale serviciului prestat (P1), scos din CARES.
+Aplicația le potrivește singură pe nume, adaugă sub fiecare om un rând cu orele
+reale și ține totul online, pe luni, ca să fie la îndemână de pe orice
+calculator sau telefon.
 
 ## Ce face
 
@@ -28,6 +35,13 @@ orele reale din fișele individuale ale serviciului prestat (PDF P1, CARES).
 - Cine nu are fișă în PDF (de obicei personalul de la alt depou) apare în grilă
   cu avertizarea „fără fișă”.
 
+## Conturi
+
+Intrarea se face cu nume de utilizator și parolă. Conturile se fac din consola
+Firebase, nu din aplicație; fiecare își poate schimba parola din meniul propriu.
+Parolele stau criptate în Firebase Authentication, nu în cod și nici în baza de
+date.
+
 ## Dezvoltare
 
 ```
@@ -41,5 +55,5 @@ Verificarea importatoarelor pe fișiere reale:
 npx vite-node scripts/verifica.ts <program.xlsx> <fise.pdf> ["NUME OM"]
 ```
 
-Datele se păstrează deocamdată în browser (localStorage). Salvarea online în
-Firebase se adaugă în pasul următor.
+Datele se păstrează în Cloud Firestore, o lună per document, și în browser ca
+rezervă. Vezi `FIREBASE.md`.

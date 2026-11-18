@@ -257,3 +257,37 @@ table.grila tr.r-real td.gol { opacity: 0.4; }
 .stare-cloud.citeste::before, .stare-cloud.scrie::before { background: var(--warn-fg); }
 .stare-cloud.eroare { color: var(--bad-fg); }
 .stare-cloud.eroare::before { background: var(--bad-fg); }
+
+/* Logare și meniul contului */
+.logare-fundal { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--page); }
+.logare {
+  width: min(380px, 100%); padding: 32px 28px; border-radius: 20px;
+  background: var(--panel); border: 1px solid var(--line); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 14px; text-align: center;
+}
+.logare-logo { width: 64px; height: 64px; border-radius: 16px; align-self: center; }
+.logare h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+.logare h1 i { font-style: normal; color: var(--accent); }
+.logare p { margin: -6px 0 6px; font-size: 13px; }
+.logare label, .camp-lista label { display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 12.5px; color: var(--muted); }
+.logare input, .camp-lista input {
+  height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px;
+  background: var(--input); border: 1px solid var(--line2); color: var(--fg);
+}
+.pill-btn.lat { width: 100%; justify-content: center; height: 42px; }
+.camp-lista { display: flex; flex-direction: column; gap: 14px; padding-top: 18px; }
+.modal.ingust { width: min(420px, 100%); }
+
+.meniu-zona { position: relative; }
+.meniu {
+  position: absolute; right: 0; top: 46px; z-index: 50; width: 280px; overflow: hidden;
+  background: var(--page-solid); border: 1px solid var(--line2); border-radius: 14px; box-shadow: var(--shadow);
+}
+.meniu button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 2px;
+  width: 100%; padding: 11px 14px; font-size: 13.5px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+}
+.meniu button:last-child { border-bottom: none; }
+.meniu button:hover { background: var(--hover); }
+.meniu small { font-size: 11.5px; color: var(--muted); font-weight: 400; }

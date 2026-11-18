@@ -75,8 +75,9 @@ export function scrieUltimaLuna(cheie: string): void {
   try { localStorage.setItem(CHEIE_ULTIMA_LUNA, cheie); } catch { /* ignorăm */ }
 }
 
+/** Tema implicită e cea deschisă, în roz. */
 export function citesteTema(): 'dark' | 'light' {
-  return localStorage.getItem(CHEIE_TEMA) === 'light' ? 'light' : 'dark';
+  return localStorage.getItem(CHEIE_TEMA) === 'dark' ? 'dark' : 'light';
 }
 
 export function scrieTema(t: 'dark' | 'light'): void {

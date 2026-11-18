@@ -1,7 +1,7 @@
 # Salvarea online (Firebase)
 
-Aplicația merge și fără Firebase — atunci datele rămân doar în browser. Ca să
-salveze online, trebuie completat `src/cloud/config.ts`.
+Proiectul e configurat în `src/cloud/config.ts` și e gata de folosit. Ce
+urmează e pentru cine trebuie să refacă sau să înțeleagă montajul.
 
 ## 1. Proiect nou
 
@@ -16,21 +16,35 @@ salveze online, trebuie completat `src/cloud/config.ts`.
 
 ## 2. Regulile bazei de date
 
-Cât timp aplicația nu are logare, oricine are adresa poate citi și scrie.
-Pentru testare, în **Firestore → Rules**:
+Doar un cont conectat poate citi sau scrie, și numai în colecția `luni`:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /luni/{luna} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
   }
 }
 ```
 
-Când se adaugă logarea, regula devine `if request.auth != null;`.
+## 2b. Conturile
+
+**Authentication → Sign-in method** are pornit **Email/Password**. Conturile se
+adaugă din **Authentication → Users → Add user**.
+
+Aplicația cere nume de utilizator, nu adresă de e-mail: pune singură domeniul
+intern `@programbirouri.ro` în spatele numelui. Așadar contul `simonamartian` se
+creează cu adresa `simonamartian@programbirouri.ro`.
+
+Contul `balanadrian` e cel care administrează tot și nu apare nicăieri în
+aplicație sub numele lui. Numele celui care administrează e scris în
+`src/cloud/auth.ts`, la `SUPERADMIN`.
+
+Fiecare își schimbă parola din meniul propriu, din dreapta sus. Firebase cere
+parola veche înainte de a o schimba pe cea nouă, care trebuie să aibă cel puțin
+șase caractere. Parolele nu stau nici în cod, nici în baza de date.
 
 ## 3. Cum sunt păstrate datele
 
