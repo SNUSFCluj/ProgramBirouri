@@ -45,24 +45,27 @@ export default function App() {
     <div className="app">
       <header className="top">
         <div className="top-row">
-          <div className="brand">
-            <img src="./icon-192.png" alt="" className="logo" />
-            Program <i>birouri</i>
-            <small>comparare program și fișe P1</small>
+          <div className="top-stanga">
+            <div className="brand">
+              <img src="./icon-192.png" alt="" className="logo" />
+              Program <i>birouri</i>
+            </div>
+            <nav className="nav">
+              <button className={`pill-btn${pagina === 'import' ? ' primary' : ''}`} onClick={() => setPagina('import')}>Import</button>
+              <button className={`pill-btn${pagina === 'program' ? ' primary' : ''}`} onClick={() => setPagina('program')}>Program</button>
+              <button className={`pill-btn${pagina === 'oameni' ? ' primary' : ''}`} onClick={() => setPagina('oameni')}>Oameni</button>
+            </nav>
           </div>
 
-          <nav className="nav">
-            <button className={`pill-btn${pagina === 'import' ? ' primary' : ''}`} onClick={() => setPagina('import')}>Import</button>
-            <button className={`pill-btn${pagina === 'program' ? ' primary' : ''}`} onClick={() => setPagina('program')}>Program</button>
-            <button className={`pill-btn${pagina === 'oameni' ? ' primary' : ''}`} onClick={() => setPagina('oameni')}>Oameni</button>
-          </nav>
+          <div className="top-mijloc">
+            <SelectorLuna cheie={cheie} cuDate={cheiLuni} onSchimba={setCheie} />
+          </div>
 
-          <div className="spatiu" />
-
-          <SelectorLuna cheie={cheie} cuDate={cheiLuni} onSchimba={setCheie} />
-          <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
-            {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
-          </button>
+          <div className="top-dreapta">
+            <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
+              {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
+            </button>
+          </div>
         </div>
       </header>
 
