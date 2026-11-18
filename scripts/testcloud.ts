@@ -1,0 +1,11 @@
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { configFirebase } from '../src/cloud/config';
+const db = getFirestore(initializeApp(configFirebase));
+const ref = doc(db, 'luni', '__test__');
+await setDoc(ref, { cheie: '__test__', versiune: 'x', actualizat: Date.now(), date: '{}' });
+const s = await getDoc(ref);
+console.log('scris si citit:', s.exists(), JSON.stringify(s.data()));
+await deleteDoc(ref);
+console.log('sters ok');
+process.exit(0);
