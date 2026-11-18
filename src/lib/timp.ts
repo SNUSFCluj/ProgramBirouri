@@ -4,7 +4,7 @@
 export function citesteDurata(text: string): number | null {
   const t = text.trim().replace(/[’']/g, '');
   if (!t) return null;
-  const hm = /^(\d{1,3}):(\d{2})$/.exec(t);
+  const hm = /^(\d{1,3}):(\d{2})(?::\d{2})?$/.exec(t);
   if (hm) return Number(hm[1]) * 60 + Number(hm[2]);
   if (/^\d{1,2}$/.test(t)) return Number(t) * 60;
   return null;
@@ -22,8 +22,12 @@ export function scrieDurata(minute: number): string {
 export function minuteDinCelula(v: unknown): number {
   if (v == null || v === '') return 0;
   if (typeof v === 'number') {
-    // Excel ține orele ca fracțiune de zi.
-    if (v > 0 && v < 10) return Math.round(v * 24 * 60);
+    if (v <= 0) return 0;
+    // Foile EA scriu orele ca oră Excel, adică fracțiune de zi: 0,5 = 12:00.
+    if (v < 1) return Math.round(v * 24 * 60);
+    // Foaia MAN le scrie ca număr simplu de ore: 12, 5, 7.
+    if (v <= 24) return Math.round(v * 60);
+    // Orice e mai mare e altceva (număr de tren, de locomotivă).
     return 0;
   }
   if (v instanceof Date) return v.getHours() * 60 + v.getMinutes();
