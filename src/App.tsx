@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ImportFI, Luna, Program } from './types';
-import { cheieLuna, citesteTema, dateVechiSterse, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema } from './store';
+import { citesteTema, citesteUltimaLuna, dateVechiSterse, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema, scrieUltimaLuna } from './store';
 import { leaga, type OmLegat } from './lib/legatura';
 import { NUME_LUNI } from './lib/timp';
 import { Import } from './components/Import';
@@ -13,17 +13,15 @@ type Pagina = 'import' | 'program' | 'oameni';
 
 export default function App() {
   const [luni, setLuni] = useState<Record<string, Luna>>(() => incarcaTot());
-  // Pornim pe luna curentă; utilizatorul o schimbă din bara de sus.
-  const [cheie, setCheie] = useState<string>(() => {
-    const acum = new Date();
-    return cheieLuna(acum.getFullYear(), acum.getMonth() + 1);
-  });
+  // Ținem minte luna deschisă ultima dată; prima oară pornim pe luna curentă.
+  const [cheie, setCheie] = useState<string>(() => citesteUltimaLuna());
   const [pagina, setPagina] = useState<Pagina>('import');
   const [tema, setTema] = useState<'dark' | 'light'>(() => citesteTema());
   const [omDeschis, setOmDeschis] = useState<OmLegat | null>(null);
 
   useEffect(() => { salveazaTot(luni); }, [luni]);
   useEffect(() => { scrieTema(tema); }, [tema]);
+  useEffect(() => { scrieUltimaLuna(cheie); }, [cheie]);
 
   const luna = cheie ? luni[cheie] : undefined;
   const program = luna?.program ?? null;

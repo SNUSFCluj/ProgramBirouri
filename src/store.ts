@@ -59,6 +59,22 @@ export function salveazaFI(luni: Record<string, Luna>, fi: ImportFI, an: number,
   return { ...luni, [cheie]: { ...veche, cheie, fi } };
 }
 
+const CHEIE_ULTIMA_LUNA = 'programBirouri.ultimaLuna';
+
+/** Luna deschisă ultima dată; dacă nu există, luna curentă. */
+export function citesteUltimaLuna(): string {
+  try {
+    const v = localStorage.getItem(CHEIE_ULTIMA_LUNA);
+    if (v && /^\d{4}-\d{2}$/.test(v)) return v;
+  } catch { /* fără browser sau fără drept de scriere */ }
+  const d = new Date();
+  return cheieLuna(d.getFullYear(), d.getMonth() + 1);
+}
+
+export function scrieUltimaLuna(cheie: string): void {
+  try { localStorage.setItem(CHEIE_ULTIMA_LUNA, cheie); } catch { /* ignorăm */ }
+}
+
 export function citesteTema(): 'dark' | 'light' {
   return localStorage.getItem(CHEIE_TEMA) === 'light' ? 'light' : 'dark';
 }
