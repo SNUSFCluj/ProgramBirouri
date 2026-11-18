@@ -250,3 +250,10 @@ table.grila tr.r-real td.gol { opacity: 0.4; }
 .luna-import { margin-bottom: 16px; padding: 10px 16px; border-radius: 12px; background: var(--accent-soft); font-size: 13.5px; }
 .stare.atentie { background: var(--warn-bg); color: var(--warn-fg); }
 .gol-pagina { max-width: 640px; margin: 48px auto; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+/* Starea salvării online */
+.stare-cloud { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.stare-cloud::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--ok-fg); }
+.stare-cloud.citeste::before, .stare-cloud.scrie::before { background: var(--warn-fg); }
+.stare-cloud.eroare { color: var(--bad-fg); }
+.stare-cloud.eroare::before { background: var(--bad-fg); }

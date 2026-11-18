@@ -1,0 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import * as pdfjs from 'pdfjs-dist';
+const require_ = createRequire(import.meta.url);
+pdfjs.GlobalWorkerOptions.workerSrc = require_.resolve('pdfjs-dist/build/pdf.worker.mjs');
+import { citesteProgram } from '../src/import/program';
+import { citesteFI } from '../src/import/fi';
+const buf=(p:string)=>{const b=readFileSync(p);return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength) as ArrayBuffer;};
+const program = citesteProgram(buf(process.argv[2]), process.argv[2].split('/').pop()!);
+const fi = await citesteFI(buf(process.argv[3]), 'fi.pdf');
+const kb = (o: unknown) => (new TextEncoder().encode(JSON.stringify(o)).length/1024).toFixed(1)+' KB';
+console.log('program', kb(program));
+console.log('fi total', kb(fi));
+console.log('fi fara linii', kb({...fi, oameni: fi.oameni.map(o=>({...o, linii: []}))}));
+console.log('tot', kb({program, fi}));
+console.log('cel mai mare om', kb(fi.oameni.map(o=>JSON.stringify(o).length).sort((a,b)=>b-a)[0]));

@@ -8,6 +8,7 @@ import { Grila } from './components/Grila';
 import { Oameni } from './components/Oameni';
 import { Detalii } from './components/Detalii';
 import { SelectorLuna } from './components/SelectorLuna';
+import { cloudPornit, incarcaLuni, salveazaLuna, type StareCloud } from './cloud';
 
 type Pagina = 'import' | 'program' | 'oameni';
 
@@ -18,6 +19,41 @@ export default function App() {
   const [pagina, setPagina] = useState<Pagina>('import');
   const [tema, setTema] = useState<'dark' | 'light'>(() => citesteTema());
   const [omDeschis, setOmDeschis] = useState<OmLegat | null>(null);
+  const [stareCloud, setStareCloud] = useState<StareCloud>(cloudPornit() ? 'citeste' : 'oprit');
+  const [eroareCloud, setEroareCloud] = useState('');
+
+  // La pornire aducem lunile salvate online și le punem peste cele din browser.
+  useEffect(() => {
+    if (!cloudPornit()) return;
+    let valabil = true;
+    incarcaLuni()
+      .then((dinCloud) => {
+        if (!valabil || !dinCloud) return;
+        setLuni((l) => ({ ...l, ...dinCloud }));
+        setStareCloud('pornit');
+      })
+      .catch((e: Error) => {
+        if (!valabil) return;
+        setStareCloud('eroare');
+        setEroareCloud(e.message);
+      });
+    return () => { valabil = false; };
+  }, []);
+
+  /** Salvează o lună și în browser, și online. */
+  function pastreaza(schimba: (l: Record<string, Luna>) => Record<string, Luna>, cheieLunii: string) {
+    setLuni((l) => {
+      const nou = schimba(l);
+      const lunaNoua = nou[cheieLunii];
+      if (lunaNoua && cloudPornit()) {
+        setStareCloud('scrie');
+        salveazaLuna(lunaNoua)
+          .then(() => { setStareCloud('pornit'); setEroareCloud(''); })
+          .catch((e: Error) => { setStareCloud('eroare'); setEroareCloud(e.message); });
+      }
+      return nou;
+    });
+  }
 
   useEffect(() => { salveazaTot(luni); }, [luni]);
   useEffect(() => { scrieTema(tema); }, [tema]);
@@ -32,11 +68,11 @@ export default function App() {
   const [anAles, lunaAleasa] = cheie.split('-').map(Number);
 
   function primesteProgram(p: Program) {
-    setLuni((l) => salveazaProgram(l, p));
+    pastreaza((l) => salveazaProgram(l, p), cheie);
   }
 
   function primesteFI(f: ImportFI) {
-    setLuni((l) => salveazaFI(l, f, anAles, lunaAleasa));
+    pastreaza((l) => salveazaFI(l, f, anAles, lunaAleasa), cheie);
   }
 
   const cheiLuni = Object.keys(luni).sort();
@@ -62,6 +98,14 @@ export default function App() {
           </div>
 
           <div className="top-dreapta">
+            {stareCloud !== 'oprit' && (
+              <span className={`stare-cloud ${stareCloud}`} title={eroareCloud || undefined}>
+                {stareCloud === 'citeste' ? 'se încarcă…'
+                  : stareCloud === 'scrie' ? 'se salvează…'
+                  : stareCloud === 'eroare' ? 'eroare la salvare'
+                  : 'salvat în baza de date'}
+              </span>
+            )}
             <button className="pill-btn" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
               {tema === 'dark' ? 'Temă deschisă' : 'Temă închisă'}
             </button>
