@@ -1,4 +1,5 @@
 /** Fereastra cu detaliile unui om: zi de zi, programat lângă real. */
+import { Fereastra } from './Fereastra';
 import type { OmLegat } from '../lib/legatura';
 import { NUME_COLOANE } from '../import/fi';
 import { scrieDurata } from '../lib/timp';
@@ -17,7 +18,7 @@ export function Detalii({ om, zile, an, luna, onInchide }: Props) {
   const rows = Array.from({ length: zile }, (_, i) => i + 1);
 
   return (
-    <div className="modal-fundal" onClick={onInchide}>
+    <Fereastra onInchide={onInchide}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-cap">
           <div>
@@ -87,6 +88,6 @@ export function Detalii({ om, zile, an, luna, onInchide }: Props) {
           </table>
         </div>
       </div>
-    </div>
+    </Fereastra>
   );
 }

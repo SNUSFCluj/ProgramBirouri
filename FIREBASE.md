@@ -24,20 +24,32 @@ scrie documentul propriu la prima intrare:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function contul() {
+    function fisa() {
       return get(/databases/$(database)/documents/conturi/$(request.auth.uid)).data;
     }
+    function administrez() {
+      return request.auth != null && fisa().rol == 'superadmin';
+    }
     match /conturi/{uid} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == uid;
-      allow update, delete: if request.auth != null && contul().rol == 'superadmin';
+      allow get: if request.auth != null && (request.auth.uid == uid || administrez());
+      allow list, create, update, delete: if administrez();
     }
     match /luni/{luna} {
-      allow read, write: if request.auth != null && contul().activ == true;
+      allow read, write: if request.auth != null && fisa().activ == true;
     }
   }
 }
 ```
+
+Cheia e colecția `conturi`: un document pe cont, cu identificatorul dat de
+Firebase. Documentul acesta e fișa de acces. Fără el nu se intră în aplicație,
+oricât de valid ar fi contul în Firebase Authentication. Fișele le scrie doar
+cel care administrează aplicația, din fereastra Conturi.
+
+Asta închide o portiță: cheile unei aplicații web sunt în pagină, la vedere,
+așa că oricine și-ar putea face cont în Firebase. Un astfel de cont rămâne fără
+fișă, deci fără acces. Fiecare admin își poate citi doar propria fișă; lista
+întreagă o vede doar cel care administrează.
 
 ## 2b. Conturile
 

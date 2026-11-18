@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { iesi, schimbaParola, type Cont } from '../cloud/auth';
 import { Conturi } from './Conturi';
+import { Fereastra } from './Fereastra';
 
 export function Meniu({ cont, onIesit, onCont }: { cont: Cont; onIesit: () => void; onCont: (c: Cont) => void }) {
   const [deschis, setDeschis] = useState(false);
@@ -77,7 +78,7 @@ function SchimbaParola({ onInchide }: { onInchide: () => void }) {
   }
 
   return (
-    <div className="modal-fundal" onClick={onInchide}>
+    <Fereastra onInchide={onInchide}>
       <form className="modal ingust" onClick={(e) => e.stopPropagation()} onSubmit={(e) => { void trimite(e); }}>
         <div className="modal-cap">
           <h2>Schimbă parola</h2>
@@ -108,6 +109,6 @@ function SchimbaParola({ onInchide }: { onInchide: () => void }) {
           </div>
         )}
       </form>
-    </div>
+    </Fereastra>
   );
 }

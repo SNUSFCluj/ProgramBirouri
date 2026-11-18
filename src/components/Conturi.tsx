@@ -1,5 +1,6 @@
 /** Administrarea conturilor. O vede doar cel care administrează aplicația. */
 import { useEffect, useState } from 'react';
+import { Fereastra } from './Fereastra';
 import type { Cont } from '../cloud/auth';
 import { faceCont, listaConturi, redenumeste, schimbaAccesul, stergeCont, type ContSalvat } from '../cloud/conturi';
 
@@ -74,7 +75,7 @@ export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont)
   const potCrea = nume.trim().length > 0 && utilizator.trim().length >= 3 && parola.length >= 6;
 
   return (
-    <div className="modal-fundal" onClick={onInchide}>
+    <Fereastra onInchide={onInchide}>
       <div className="modal lat" onClick={(e) => e.stopPropagation()}>
         <div className="modal-cap">
           <div>
@@ -161,6 +162,6 @@ export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont)
           </table>
         </div>
       </div>
-    </div>
+    </Fereastra>
   );
 }

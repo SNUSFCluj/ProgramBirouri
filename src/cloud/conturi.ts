@@ -53,26 +53,17 @@ async function porneste(): Promise<Legatura | null> {
 }
 
 /**
- * Aduce contul din baza de date. Dacă nu există încă — cazul conturilor făcute
- * direct din consola Firebase — îl scrie acum, ca să apară în listă.
+ * Aduce fișa de acces a contului. Întoarce null dacă nu există.
+ *
+ * Fișa nu se scrie de la sine. Un cont făcut pe ascuns în Firebase n-are fișă,
+ * deci nu intră în aplicație, oricât de valid ar fi contul în sine. Fișele le
+ * face doar cel care administrează aplicația, din fereastra Conturi.
  */
-export async function contulMeu(uid: string, utilizator: string): Promise<ContSalvat | null> {
+export async function contulMeu(uid: string): Promise<ContSalvat | null> {
   const c = await porneste();
   if (!c) return null;
-  const ref = c.fs.doc(c.db, COLECTIA_CONTURI, uid);
-  const snap = await c.fs.getDoc(ref);
-  if (snap.exists()) return snap.data() as ContSalvat;
-
-  const nou: ContSalvat = {
-    uid,
-    nume: utilizator,
-    utilizator,
-    rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin',
-    activ: true,
-    creat: Date.now(),
-  };
-  await c.fs.setDoc(ref, nou);
-  return nou;
+  const snap = await c.fs.getDoc(c.fs.doc(c.db, COLECTIA_CONTURI, uid));
+  return snap.exists() ? (snap.data() as ContSalvat) : null;
 }
 
 /** Conturile, fără cele șterse. Cel care administrează se vede doar pe sine. */

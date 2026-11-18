@@ -58,15 +58,24 @@ function contDinUtilizator(uid: string, email: string | null): Cont | null {
   return { uid, nume: utilizator, utilizator, rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin' };
 }
 
-/** Citește rolul din baza de date și oprește conturile blocate. */
+/**
+ * Citește fișa de acces și oprește pe cine n-are voie.
+ *
+ * Fără fișă nu se intră: așa rămân pe dinafară conturile făcute pe altă cale
+ * decât din fereastra Conturi.
+ */
 async function completeaza(cont: Cont): Promise<Cont> {
   const { contulMeu } = await import('./conturi');
-  const salvat = await contulMeu(cont.uid, cont.utilizator);
-  if (salvat && !salvat.activ) {
+  const salvat = await contulMeu(cont.uid);
+  if (!salvat) {
+    await iesi();
+    throw new Error('Contul acesta n-are acces la aplicație.');
+  }
+  if (!salvat.activ) {
     await iesi();
     throw new Error('Contul acesta nu mai are voie să intre.');
   }
-  return salvat ? { ...cont, rol: salvat.rol, nume: salvat.nume || cont.utilizator } : cont;
+  return { ...cont, rol: salvat.rol, nume: salvat.nume || cont.utilizator };
 }
 
 /** Anunță cine e conectat. Prima dată trimite și contul ținut minte de browser. */
