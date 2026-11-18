@@ -6,15 +6,32 @@ import type { ImportFI, Luna, Program } from './types';
 
 const CHEIE = 'programBirouri.luni';
 const CHEIE_TEMA = 'programBirouri.tema';
+const CHEIE_VERSIUNE = 'programBirouri.versiuneDate';
+
+/**
+ * Se schimbă ori de câte ori se modifică felul în care se citesc fișierele.
+ * Datele salvate mai demult se șterg atunci, ca să nu rămână pe ecran cifre
+ * calculate cu regulile vechi; fișierele trebuie încărcate din nou.
+ */
+export const VERSIUNE_DATE = '3';
 
 export function cheieLuna(an: number, luna: number): string {
   return `${an}-${String(luna).padStart(2, '0')}`;
 }
 
+/** Adevărat dacă la pornire am găsit date salvate cu regulile vechi. */
+export let dateVechiSterse = false;
+
 export function incarcaTot(): Record<string, Luna> {
   try {
     const brut = localStorage.getItem(CHEIE);
     if (!brut) return {};
+    if (localStorage.getItem(CHEIE_VERSIUNE) !== VERSIUNE_DATE) {
+      localStorage.removeItem(CHEIE);
+      localStorage.setItem(CHEIE_VERSIUNE, VERSIUNE_DATE);
+      dateVechiSterse = true;
+      return {};
+    }
     return JSON.parse(brut) as Record<string, Luna>;
   } catch {
     return {};
@@ -24,6 +41,7 @@ export function incarcaTot(): Record<string, Luna> {
 export function salveazaTot(luni: Record<string, Luna>): void {
   try {
     localStorage.setItem(CHEIE, JSON.stringify(luni));
+    localStorage.setItem(CHEIE_VERSIUNE, VERSIUNE_DATE);
   } catch (e) {
     console.warn('Nu am putut salva în browser', e);
   }

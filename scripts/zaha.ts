@@ -1,0 +1,13 @@
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import * as pdfjs from 'pdfjs-dist';
+const require_ = createRequire(import.meta.url);
+pdfjs.GlobalWorkerOptions.workerSrc = require_.resolve('pdfjs-dist/build/pdf.worker.mjs');
+import { citesteFI } from '../src/import/fi';
+import { scrieDurata } from '../src/lib/timp';
+const b=readFileSync(process.argv[2]);
+const fi = await citesteFI(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength) as ArrayBuffer, 'fi.pdf');
+const nume = process.argv[3] ?? 'ZAHA';
+const o = fi.oameni.find(x=>x.nume.toUpperCase().includes(nume))!;
+console.log(o.nume, o.marca, 'total', scrieDurata(o.total), 'linii', o.linii.length);
+for (const l of o.linii) console.log(` zi ${l.zi}${l.ziFinal!==l.zi?'-'+l.ziFinal:''} tren=${l.tren} ${l.intrare!=null?scrieDurata(l.intrare):'?'}-${l.iesire!=null?scrieDurata(l.iesire):'?'} total ${scrieDurata(l.total)} col=${JSON.stringify(l.coloane)}`);

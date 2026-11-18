@@ -90,6 +90,23 @@ function imparte(total: number, intrare: number | null, iesire: number | null): 
   return [a, total - a];
 }
 
+/**
+ * Totalul unui rând, când fișa nu scrie „Timp în serviciu”.
+ *
+ * Coloana 12, „Ore alte funcții”, arată că omul a lucrat în altă funcție, iar
+ * orele acelea sunt trecute și la Turnus sau la Tură. Le numărăm o singură
+ * dată: coloana 12 intră la socoteală doar când rândul nu are alte ore
+ * productive — cazul turanților, care au totul acolo.
+ */
+export function totalDinColoane(coloane: Record<number, number>): number {
+  let productiv = 0;
+  for (const c of [8, 9, 10, 11, 13]) productiv += coloane[c] ?? 0;
+  if (productiv === 0) productiv = coloane[12] ?? 0;
+  let neproductiv = 0;
+  for (let c = 14; c <= 29; c++) neproductiv += coloane[c] ?? 0;
+  return productiv + neproductiv;
+}
+
 export interface ProgresFI { pagina: number; total: number; }
 
 export async function citesteFI(
@@ -141,12 +158,20 @@ export async function citesteFI(
 
     let om = dupaMarca.get(marca);
     if (!om) {
-      const mFunc = /Func[țţ]ia: (.+?)(?: Perioada:|$)/m.exec(textPagina);
+      // Funcția stă în stânga paginii. În dreapta, pe aceeași linie, fișa are o
+      // legendă („CM”, „CM în zi Liberă”), care nu face parte din funcție.
+      let functia = '';
+      for (const rand of randuri) {
+        if (/^Func[țţ]ia:?$/.test(rand[0].text)) {
+          functia = rand.slice(1).filter((c) => c.x < 500).map((c) => c.text).join(' ').trim();
+          break;
+        }
+      }
       const mNorma = /Turnus \((\d+) ore/.exec(textPagina);
       om = {
         marca,
         nume,
-        functia: mFunc ? mFunc[1].trim() : '',
+        functia,
         norma: mNorma ? Number(mNorma[1]) : null,
         linii: [],
         orePeZi: {},
@@ -175,7 +200,7 @@ export async function citesteFI(
       const zi = Number(mzi[1]);
       const ziFinal = mzi[2] ? Number(mzi[2]) : zi;
 
-      const linie: LinieFI = { zi, ziFinal, tren: '', intrare: null, iesire: null, coloane: {}, total: 0 };
+      const linie: LinieFI = { zi, ziFinal, tren: '', intrare: null, iesire: null, coloane: {}, timpInServiciu: null, total: 0 };
       const trenBucati: string[] = [];
       for (const c of rand.slice(1)) {
         const col = coloanaLui(c.x + c.latime / 2, lim);
@@ -183,13 +208,18 @@ export async function citesteFI(
         if (col === 2) trenBucati.push(c.text);
         else if (col === 5) linie.intrare = citesteDurata(c.text);
         else if (col === 6) linie.iesire = citesteDurata(c.text);
+        else if (col === 7) linie.timpInServiciu = citesteDurata(c.text);
         else if (COLOANE_NORMA.includes(col)) {
           const v = citesteDurata(c.text);
           if (v != null) linie.coloane[col] = (linie.coloane[col] ?? 0) + v;
         }
       }
       linie.tren = trenBucati.join(' ');
-      linie.total = Object.values(linie.coloane).reduce((a, b) => a + b, 0);
+      // „Timp în serviciu” e totalul rândului scris chiar de fișă. Îl folosim
+      // când există, pentru că unele ore apar de două ori pe rând: o dată la
+      // Turnus și încă o dată la „Ore alte funcții”, când omul a lucrat în
+      // altă funcție. Adunarea coloanelor le-ar socoti de două ori.
+      linie.total = linie.timpInServiciu ?? totalDinColoane(linie.coloane);
       if (linie.total === 0 && !linie.tren) continue;
       om.linii.push(linie);
 

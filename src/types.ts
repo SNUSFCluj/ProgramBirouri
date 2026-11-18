@@ -50,6 +50,8 @@ export interface LinieFI {
   iesire: number | null;
   /** Minutele pe fiecare coloană care intră în normă, pe numărul coloanei (8..29). */
   coloane: Record<number, number>;
+  /** Coloana 7, „Timp în serviciu” — totalul liniei așa cum îl scrie fișa. */
+  timpInServiciu: number | null;
   /** Totalul liniei, în minute. */
   total: number;
 }

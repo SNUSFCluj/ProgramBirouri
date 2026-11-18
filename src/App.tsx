@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ImportFI, Luna, Program } from './types';
-import { cheieLuna, citesteTema, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema } from './store';
+import { cheieLuna, citesteTema, dateVechiSterse, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema } from './store';
 import { leaga, type OmLegat } from './lib/legatura';
 import { NUME_LUNI } from './lib/timp';
 import { Import } from './components/Import';
@@ -77,6 +77,12 @@ export default function App() {
       </header>
 
       <main className="corp">
+        {dateVechiSterse && !program && (
+          <div className="banda">
+            Regulile de citire s-au schimbat, așa că importul vechi a fost șters.
+            Încarcă din nou programul și fișele.
+          </div>
+        )}
         {pagina !== 'import' && program && legatura.panaLaZi != null && legatura.panaLaZi < program.zile && (
           <div className="banda">
             Fișele acoperă doar zilele {legatura.deLaZi ?? 1}–{legatura.panaLaZi} din {NUME_LUNI[program.luna - 1]}.
