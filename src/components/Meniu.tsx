@@ -1,10 +1,12 @@
 /** Meniul contului: schimbarea parolei și ieșirea din cont. */
 import { useEffect, useRef, useState } from 'react';
 import { iesi, schimbaParola, SUPERADMIN, type Cont } from '../cloud/auth';
+import { Conturi } from './Conturi';
 
 export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
   const [deschis, setDeschis] = useState(false);
   const [parolaD, setParolaD] = useState(false);
+  const [conturiD, setConturiD] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,6 +37,12 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
             Schimbă parola
             <small>Parola nouă trebuie să aibă cel puțin șase caractere.</small>
           </button>
+          {cont.rol === 'superadmin' && (
+            <button onClick={() => { setDeschis(false); setConturiD(true); }}>
+              Conturi
+              <small>Faci conturi noi și blochezi conturile care nu mai au ce căuta aici.</small>
+            </button>
+          )}
           <button onClick={() => { setDeschis(false); void iesi().then(onIesit); }}>
             Ieși din cont
             <small>Te întorci la ecranul de logare.</small>
@@ -42,6 +50,7 @@ export function Meniu({ cont, onIesit }: { cont: Cont; onIesit: () => void }) {
         </div>
       )}
       {parolaD && <SchimbaParola onInchide={() => setParolaD(false)} />}
+      {conturiD && <Conturi onInchide={() => setConturiD(false)} />}
     </div>
   );
 }

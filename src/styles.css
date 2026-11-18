@@ -291,3 +291,7 @@ table.grila tr.r-real td.gol { opacity: 0.4; }
 .meniu button:last-child { border-bottom: none; }
 .meniu button:hover { background: var(--hover); }
 .meniu small { font-size: 11.5px; color: var(--muted); font-weight: 400; }
+.camp-lista h3 { margin: 18px 0 0; font-size: 15px; }
+.camp-lista p { margin: 0; }
+.modal.ingust .modal-corp { padding-bottom: 22px; }
+.modal.ingust table.lista { margin-top: 16px; }

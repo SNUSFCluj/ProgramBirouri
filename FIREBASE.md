@@ -16,14 +16,24 @@ urmează e pentru cine trebuie să refacă sau să înțeleagă montajul.
 
 ## 2. Regulile bazei de date
 
-Doar un cont conectat poate citi sau scrie, și numai în colecția `luni`:
+Lunile le poate citi și scrie doar un cont conectat și nebloca. Conturile le
+poate schimba doar cel care administrează aplicația, iar fiecare își poate
+scrie documentul propriu la prima intrare:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function contul() {
+      return get(/databases/$(database)/documents/conturi/$(request.auth.uid)).data;
+    }
+    match /conturi/{uid} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update, delete: if request.auth != null && contul().rol == 'superadmin';
+    }
     match /luni/{luna} {
-      allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null && contul().activ == true;
     }
   }
 }
@@ -41,6 +51,12 @@ creează cu adresa `simonamartian@programbirouri.ro`.
 Contul `balanadrian` e cel care administrează tot și nu apare nicăieri în
 aplicație sub numele lui. Numele celui care administrează e scris în
 `src/cloud/auth.ts`, la `SUPERADMIN`.
+
+Conturile noi se fac și din aplicație, din meniul celui care o administrează,
+la **Conturi**. Un cont se poate bloca și debloca de acolo; ștergerea de tot se
+face doar din consola Firebase. Colecția `conturi` din Firestore ține numele de
+utilizator, rolul și dacă are voie să intre — un document pe cont, cu
+identificatorul dat de Firebase.
 
 Fiecare își schimbă parola din meniul propriu, din dreapta sus. Firebase cere
 parola veche înainte de a o schimba pe cea nouă, care trebuie să aibă cel puțin

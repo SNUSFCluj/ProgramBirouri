@@ -12,7 +12,7 @@
 import { cloudPornit, configFirebase } from './config';
 
 /** Domeniul intern, adăugat în spatele numelui de utilizator. */
-const DOMENIU = 'programbirouri.ro';
+export const DOMENIU = 'programbirouri.ro';
 
 /** Contul care administrează tot și nu apare nicăieri în aplicație. */
 export const SUPERADMIN = 'balanadrian';
@@ -20,6 +20,7 @@ export const SUPERADMIN = 'balanadrian';
 export type Rol = 'superadmin' | 'admin';
 
 export interface Cont {
+  uid: string;
   utilizator: string;
   rol: Rol;
 }
@@ -49,17 +50,32 @@ async function porneste(): Promise<Auth | null> {
   return pornire;
 }
 
-function contDinEmail(email: string | null): Cont | null {
+function contDinUtilizator(uid: string, email: string | null): Cont | null {
   if (!email) return null;
   const utilizator = email.split('@')[0].toLowerCase();
-  return { utilizator, rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin' };
+  return { uid, utilizator, rol: utilizator === SUPERADMIN ? 'superadmin' : 'admin' };
+}
+
+/** Citește rolul din baza de date și oprește conturile blocate. */
+async function completeaza(cont: Cont): Promise<Cont> {
+  const { contulMeu } = await import('./conturi');
+  const salvat = await contulMeu(cont.uid, cont.utilizator);
+  if (salvat && !salvat.activ) {
+    await iesi();
+    throw new Error('Contul acesta nu mai are voie să intre.');
+  }
+  return salvat ? { ...cont, rol: salvat.rol } : cont;
 }
 
 /** Anunță cine e conectat. Prima dată trimite și contul ținut minte de browser. */
 export async function urmaresteContul(cand: (cont: Cont | null) => void): Promise<void> {
   const c = await porneste();
   if (!c) { cand(null); return; }
-  c.a.onAuthStateChanged(c.auth, (u) => cand(contDinEmail(u?.email ?? null)));
+  c.a.onAuthStateChanged(c.auth, (u) => {
+    const cont = u ? contDinUtilizator(u.uid, u.email) : null;
+    if (!cont) { cand(null); return; }
+    completeaza(cont).then(cand).catch(() => cand(null));
+  });
 }
 
 export async function intra(utilizator: string, parola: string): Promise<Cont> {
@@ -68,9 +84,9 @@ export async function intra(utilizator: string, parola: string): Promise<Cont> {
   const email = `${utilizator.trim().toLowerCase()}@${DOMENIU}`;
   try {
     const r = await c.a.signInWithEmailAndPassword(c.auth, email, parola);
-    const cont = contDinEmail(r.user.email);
+    const cont = contDinUtilizator(r.user.uid, r.user.email);
     if (!cont) throw new Error('Cont fără nume.');
-    return cont;
+    return await completeaza(cont);
   } catch (e) {
     throw new Error(mesajEroare(e));
   }
