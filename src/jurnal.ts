@@ -5,7 +5,7 @@
  * SUS, în capul listei. Numărul se vede în bară, iar lista se deschide cu un
  * clic pe el.
  */
-export const VERSIUNE = '1.7';
+export const VERSIUNE = '1.8';
 
 export interface Intrare {
   v: string;
@@ -15,6 +15,16 @@ export interface Intrare {
 }
 
 export const JURNAL: Intrare[] = [
+  {
+    v: '1.8',
+    data: '2026-11-18',
+    titlu: 'Datele Firebase rezistă la rescrierea din AI Studio',
+    schimbari: [
+      'AI Studio rescrie codul la import: scoate datele Firebase din fișier și le pune ca variabile de mediu, care rămân goale. Aplicația pornea atunci fără bază de date — fără logare, fără conturi, fără salvare online — și intra oricine direct.',
+      'Acum variabilele de mediu sunt doar o posibilitate. Când lipsesc, se folosesc valorile scrise în cod, așa că aplicația merge la fel indiferent unde e compilată.',
+      'Dacă totuși rămâne fără bază de date, nu mai lasă pe nimeni înăuntru: arată un mesaj că lipsește configurarea.',
+    ],
+  },
   {
     v: '1.7',
     data: '2026-11-18',

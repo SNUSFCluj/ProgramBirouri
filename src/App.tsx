@@ -101,10 +101,21 @@ export default function App() {
 
   const cheiLuni = Object.keys(luni).sort();
 
-  if (cloudPornit() && verificaCont) {
+  if (!cloudPornit()) {
+    return (
+      <div className="gol-pagina">
+        <h2>Aplicația nu e legată la baza de date</h2>
+        <p>
+          Lipsesc datele proiectului Firebase, așa că nu se poate face logarea și
+          nimic nu se salvează online. Verifică <code>src/cloud/config.ts</code>.
+        </p>
+      </div>
+    );
+  }
+  if (verificaCont) {
     return <div className="gol-pagina">Se verifică contul…</div>;
   }
-  if (cloudPornit() && !cont) {
+  if (!cont) {
     return <Logare onIntrat={setCont} />;
   }
 
