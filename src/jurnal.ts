@@ -5,7 +5,7 @@
  * SUS, în capul listei. Numărul se vede în bară, iar lista se deschide cu un
  * clic pe el.
  */
-export const VERSIUNE = '1.8';
+export const VERSIUNE = '1.9';
 
 export interface Intrare {
   v: string;
@@ -15,6 +15,17 @@ export interface Intrare {
 }
 
 export const JURNAL: Intrare[] = [
+  {
+    v: '1.9',
+    data: '2026-11-22',
+    titlu: 'Festive și ore suplimentare, luate din fișe',
+    schimbari: [
+      'Pagina Oameni are patru coloane noi, citite din caseta „Totaluri lunare” a fișei: Festive, Festive peste normă, Rămân (ore suplimentare finale) și Plătite.',
+      'Cifrele se iau ca atare din fișă, nu se recalculează. Fișa socotește altfel decât o simplă scădere din normă — la BALAN ADRIAN, de pildă, real minus normă dă 31:45, iar fișa scrie 18 ore suplimentare finale. Astea sunt cifrele oficiale, cele după care se face plata.',
+      'Vechea coloană Diferență a fost înlocuită: ce rămâne pe luna următoare se citește acum din fișă, nu din scăderea noastră.',
+      'Aceleași cifre apar și în fereastra cu detaliile unui om.',
+    ],
+  },
   {
     v: '1.8',
     data: '2026-11-18',

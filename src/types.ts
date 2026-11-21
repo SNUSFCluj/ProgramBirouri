@@ -63,6 +63,15 @@ export interface OmFI {
   functia: string;
   /** Norma lunii, în ore, așa cum o scrie FI („Turnus (176 ore în această lună)”). */
   norma: number | null;
+  /**
+   * Caseta „Totaluri lunare” din colțul fișei, în ore întregi, luată ca atare.
+   * Nu o recalculăm: fișa socotește altfel decât o simplă scădere din normă,
+   * iar astea sunt cifrele oficiale, cele după care se face plata.
+   */
+  festiveInNorma: number | null;
+  festivePesteNorma: number | null;
+  suplimentareFinale: number | null;
+  suplimentarePlatite: number | null;
   linii: LinieFI[];
   /** Minutele care intră în normă, repartizate pe zile (turele de 2 zile sunt împărțite). */
   orePeZi: Record<number, number>;

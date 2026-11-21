@@ -168,11 +168,24 @@ export async function citesteFI(
         }
       }
       const mNorma = /Turnus \((\d+) ore/.exec(textPagina);
+      // Cifra stă de obicei după etichetă, dar uneori cade pe rândul de
+      // deasupra, cum se întâmplă la „Ore suplimentare plătite”. O căutăm în
+      // ambele părți.
+      const cifra = (eticheta: string): number | null => {
+        const dupa = new RegExp(`${eticheta}\\s+(-?\\d+)`).exec(textPagina);
+        if (dupa) return Number(dupa[1]);
+        const inainte = new RegExp(`(-?\\d+)\\s+${eticheta}`).exec(textPagina);
+        return inainte ? Number(inainte[1]) : null;
+      };
       om = {
         marca,
         nume,
         functia,
         norma: mNorma ? Number(mNorma[1]) : null,
+        festiveInNorma: cifra('Festive în normă'),
+        festivePesteNorma: cifra('Festive peste normă'),
+        suplimentareFinale: cifra('Ore suplimentare finale'),
+        suplimentarePlatite: cifra('Ore suplimentare plătite'),
         linii: [],
         orePeZi: {},
         total: 0,

@@ -13,7 +13,7 @@ const CHEIE_VERSIUNE = 'programBirouri.versiuneDate';
  * Datele salvate mai demult se șterg atunci, ca să nu rămână pe ecran cifre
  * calculate cu regulile vechi; fișierele trebuie încărcate din nou.
  */
-export const VERSIUNE_DATE = '3';
+export const VERSIUNE_DATE = '4';
 
 export function cheieLuna(an: number, luna: number): string {
   return `${an}-${String(luna).padStart(2, '0')}`;

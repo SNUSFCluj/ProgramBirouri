@@ -9,6 +9,11 @@ interface Props {
   onOm: (om: OmLegat) => void;
 }
 
+/** Orele întregi din caseta fișei; gol când fișa nu le dă. */
+function ore(v: number | null | undefined): string {
+  return v == null ? '' : `${v}`;
+}
+
 export function Oameni({ legatura, onOm }: Props) {
   const [cauta, setCauta] = useState('');
   const [functie, setFunctie] = useState('');
@@ -64,13 +69,14 @@ export function Oameni({ legatura, onOm }: Props) {
             <th className="num">Normă</th>
             <th className="num">Programat</th>
             <th className="num">Real</th>
-            <th className="num">Diferență</th>
+            <th className="num" title="Din caseta „Totaluri lunare” a fișei">Festive</th>
+            <th className="num" title="Din caseta „Totaluri lunare” a fișei">Festive peste normă</th>
+            <th className="num" title="Ore suplimentare finale, din fișă — ce rămâne pe luna următoare">Rămân</th>
+            <th className="num" title="Ore suplimentare plătite, din fișă">Plătite</th>
           </tr>
         </thead>
         <tbody>
           {lista.map((o, i) => {
-            const dif = o.fi ? o.realMinute - o.programMinute : 0;
-            const fataDeNorma = normaMin != null && o.fi ? o.realMinute - normaMin : null;
             return (
               <tr key={`${o.program.nume}-${i}`} onClick={() => onOm(o)}>
                 <td>
@@ -87,15 +93,14 @@ export function Oameni({ legatura, onOm }: Props) {
                 </td>
                 <td className="num mono">{scrieDurata(o.programMinute)}</td>
                 <td className="num mono">{o.fi ? scrieDurata(o.realMinute) : '—'}</td>
-                <td className={`num mono ${dif > 0 ? 'plus' : dif < 0 ? 'minus' : ''}`}>
-                  {o.fi ? (dif > 0 ? '+' : '') + scrieDurata(dif) : ''}
-                  {fataDeNorma != null && (
-                    <div className={`sub ${fataDeNorma >= 0 ? 'plus' : 'minus'}`}>
-                      {fataDeNorma >= 0 ? 'peste normă ' : 'sub normă '}
-                      {scrieDurata(Math.abs(fataDeNorma))}
-                    </div>
-                  )}
+                <td className="num mono">{ore(o.fi?.festiveInNorma)}</td>
+                <td className={`num mono ${(o.fi?.festivePesteNorma ?? 0) > 0 ? 'plus' : ''}`}>
+                  {ore(o.fi?.festivePesteNorma)}
                 </td>
+                <td className={`num mono ${(o.fi?.suplimentareFinale ?? 0) > 0 ? 'plus' : ''}`}>
+                  {ore(o.fi?.suplimentareFinale)}
+                </td>
+                <td className="num mono">{ore(o.fi?.suplimentarePlatite)}</td>
               </tr>
             );
           })}
