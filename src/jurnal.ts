@@ -5,7 +5,7 @@
  * SUS, în capul listei. Numărul se vede în bară, iar lista se deschide cu un
  * clic pe el.
  */
-export const VERSIUNE = '2.0';
+export const VERSIUNE = '2.1';
 
 export interface Intrare {
   v: string;
@@ -15,6 +15,18 @@ export interface Intrare {
 }
 
 export const JURNAL: Intrare[] = [
+  {
+    v: '2.1',
+    data: '2026-11-22',
+    titlu: 'Citește și programul exportat din ProgramDepoulCluj',
+    schimbari: [
+      'Cititorul nu mai presupune nimic despre așezarea fișierului: caută singur rândul cu zilele, află de unde încep coloanele și câte zile are luna.',
+      'Rândul cu orele îl recunoaște după ce scrie în el — durate, nu numere de tren — așa că nu mai contează dacă numele stă pe primul rând al blocului, ca la export, sau pe al doilea, ca la fișierul scris de mână.',
+      'Merge și pe foile unde fiecare om are un singur rând, cu orele lângă nume: turanți, revizori, acari, pompagii, manevră.',
+      'Prinde și foile fără coloanele „Ore școală” și „Ore report”, unde zilele încep imediat după nume.',
+      'Verificat pe amândouă fișierele: cel scris de mână pe octombrie (4 foi, 59 de oameni) și exportul pe noiembrie (6 foi, 79 de oameni).',
+    ],
+  },
   {
     v: '2.0',
     data: '2026-11-22',
