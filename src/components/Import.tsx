@@ -5,6 +5,7 @@ import type { Legatura } from '../lib/legatura';
 import { citesteProgram, lunaDinNumeFisier } from '../import/program';
 import { citesteFI } from '../import/fi';
 import { NUME_LUNI } from '../lib/timp';
+import { ButonSterge } from './ButonSterge';
 
 interface Props {
   program: Program | null;
@@ -15,9 +16,11 @@ interface Props {
   luna: number;
   onProgram: (p: Program) => void;
   onFI: (f: ImportFI) => void;
+  /** Golește luna deschisă: doar programul sau doar fișele. */
+  onSterge: (ce: 'program' | 'fi') => void;
 }
 
-export function Import({ program, fi, legatura, an, luna, onProgram, onFI }: Props) {
+export function Import({ program, fi, legatura, an, luna, onProgram, onFI, onSterge }: Props) {
   const refXls = useRef<HTMLInputElement>(null);
   const refPdf = useRef<HTMLInputElement>(null);
   const [stare, setStare] = useState('');
@@ -73,8 +76,19 @@ export function Import({ program, fi, legatura, an, luna, onProgram, onFI }: Pro
           <button className="pill-btn primary" onClick={() => refXls.current?.click()}>Încarcă Excel</button>
           {program && (
             <div className="rezumat">
-              <b>{program.fisier}</b>
-              <div className="muted">{NUME_LUNI[program.luna - 1]} {program.an} · {program.foi.length} foi · {program.foi.reduce((a, b) => a + b.oameni.length, 0)} oameni</div>
+              <div className="rezumat-rand">
+                <div>
+                  <b>{program.fisier}</b>
+                  <div className="muted">
+                    {NUME_LUNI[program.luna - 1]} {program.an} · {program.foi.length} foi ·{' '}
+                    {program.foi.reduce((a, b) => a + b.oameni.length, 0)} oameni
+                  </div>
+                </div>
+                <ButonSterge
+                  ce={`programul lunii ${NUME_LUNI[luna - 1]}`}
+                  onSterge={() => { setStare(''); setAtentie(''); onSterge('program'); }}
+                />
+              </div>
             </div>
           )}
         </div>
@@ -87,11 +101,19 @@ export function Import({ program, fi, legatura, an, luna, onProgram, onFI }: Pro
           <button className="pill-btn primary" onClick={() => refPdf.current?.click()}>Încarcă PDF</button>
           {fi && (
             <div className="rezumat">
-              <b>{fi.fisier}</b>
-              <div className="muted">
-                {fi.oameni.length} fișe
-                {legatura.norma != null ? ` · normă ${legatura.norma} ore` : ''}
-                {fi.panaLaZi != null ? ` · zilele ${fi.deLaZi ?? 1}–${fi.panaLaZi}` : ''}
+              <div className="rezumat-rand">
+                <div>
+                  <b>{fi.fisier}</b>
+                  <div className="muted">
+                    {fi.oameni.length} fișe
+                    {legatura.norma != null ? ` · normă ${legatura.norma} ore` : ''}
+                    {fi.panaLaZi != null ? ` · zilele ${fi.deLaZi ?? 1}–${fi.panaLaZi}` : ''}
+                  </div>
+                </div>
+                <ButonSterge
+                  ce={`fișele lunii ${NUME_LUNI[luna - 1]}`}
+                  onSterge={() => { setStare(''); setAtentie(''); onSterge('fi'); }}
+                />
               </div>
             </div>
           )}

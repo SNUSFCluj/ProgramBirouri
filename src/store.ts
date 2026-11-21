@@ -76,6 +76,24 @@ export function scrieUltimaLuna(cheie: string): void {
 }
 
 /** Tema implicită e cea deschisă, în roz. */
+/**
+ * Scoate programul sau fișele dintr-o lună. Dacă luna rămâne goală de tot, o
+ * ștergem cu totul, ca să nu mai apară marcată ca având date.
+ */
+export function stergeDinLuna(
+  luni: Record<string, Luna>,
+  cheie: string,
+  ce: 'program' | 'fi',
+): Record<string, Luna> {
+  const veche = luni[cheie];
+  if (!veche) return luni;
+  const noua: Luna = { ...veche, [ce]: null };
+  const out = { ...luni };
+  if (!noua.program && !noua.fi) delete out[cheie];
+  else out[cheie] = noua;
+  return out;
+}
+
 export function citesteTema(): 'dark' | 'light' {
   return localStorage.getItem(CHEIE_TEMA) === 'dark' ? 'dark' : 'light';
 }

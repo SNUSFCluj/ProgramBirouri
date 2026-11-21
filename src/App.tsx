@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ImportFI, Luna, Program } from './types';
-import { citesteTema, citesteUltimaLuna, dateVechiSterse, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema, scrieUltimaLuna } from './store';
+import { citesteTema, citesteUltimaLuna, dateVechiSterse, incarcaTot, salveazaFI, salveazaProgram, salveazaTot, scrieTema, scrieUltimaLuna, stergeDinLuna } from './store';
 import { leaga, type OmLegat } from './lib/legatura';
 import { NUME_LUNI } from './lib/timp';
 import { Import } from './components/Import';
@@ -10,7 +10,7 @@ import { Detalii } from './components/Detalii';
 import { SelectorLuna } from './components/SelectorLuna';
 import { Jurnal } from './components/Jurnal';
 import { VERSIUNE } from './jurnal';
-import { cloudPornit, incarcaLuni, salveazaLuna, type StareCloud } from './cloud';
+import { cloudPornit, incarcaLuni, salveazaLuna, stergeLuna, type StareCloud } from './cloud';
 import { urmaresteContul, type Cont } from './cloud/auth';
 import { Logare } from './components/Logare';
 import { Meniu } from './components/Meniu';
@@ -97,6 +97,22 @@ export default function App() {
 
   function primesteFI(f: ImportFI) {
     pastreaza((l) => salveazaFI(l, f, anAles, lunaAleasa), cheie);
+  }
+
+  /** Scoate programul sau fișele din luna deschisă, și din browser, și din bază. */
+  function sterge(ce: 'program' | 'fi') {
+    setLuni((l) => {
+      const nou = stergeDinLuna(l, cheie, ce);
+      if (cloudPornit()) {
+        setStareCloud('scrie');
+        const ramasa = nou[cheie];
+        const treaba = ramasa ? salveazaLuna(ramasa) : stergeLuna(cheie);
+        treaba
+          .then(() => { setStareCloud('pornit'); setEroareCloud(''); })
+          .catch((e: Error) => { setStareCloud('eroare'); setEroareCloud(e.message); });
+      }
+      return nou;
+    });
   }
 
   const cheiLuni = Object.keys(luni).sort();
@@ -186,6 +202,7 @@ export default function App() {
             luna={lunaAleasa}
             onProgram={primesteProgram}
             onFI={primesteFI}
+            onSterge={sterge}
           />
         )}
         {pagina !== 'import' && !program && (

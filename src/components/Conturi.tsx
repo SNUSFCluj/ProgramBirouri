@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Fereastra } from './Fereastra';
 import type { Cont } from '../cloud/auth';
 import { faceCont, listaConturi, redenumeste, schimbaAccesul, stergeCont, type ContSalvat } from '../cloud/conturi';
+import { ButonSterge } from './ButonSterge';
 
 export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont) => void; onInchide: () => void }) {
   const [lista, setLista] = useState<ContSalvat[] | null>(null);
@@ -49,7 +50,6 @@ export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont)
   }
 
   async function sterge(c: ContSalvat) {
-    if (!confirm(`Ștergi contul ${c.utilizator}? Nu mai poate intra în aplicație.`)) return;
     setEroare(''); setMesaj('');
     try {
       await stergeCont(c.uid);
@@ -153,7 +153,7 @@ export function Conturi({ eu, onCont, onInchide }: { eu: Cont; onCont: (c: Cont)
                   </td>
                   <td className="num">
                     {c.uid !== eu.uid && (
-                      <button className="pill-btn mic-btn rau-btn" onClick={() => { void sterge(c); }}>Șterge</button>
+                      <ButonSterge mic ce={`contul ${c.utilizator}`} onSterge={() => { void sterge(c); }} />
                     )}
                   </td>
                 </tr>

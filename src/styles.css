@@ -358,3 +358,5 @@ th.sortabil button:hover { background: var(--hover); }
 th.sortabil .sageata { font-size: 11px; opacity: 0.35; }
 th.sortabil.activ { color: var(--accent); }
 th.sortabil.activ .sageata { opacity: 1; }
+.rezumat-rand { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pill-btn.rau-btn.armat { background: linear-gradient(180deg, color-mix(in srgb, var(--bad-fg) 80%, white 20%), var(--bad-fg)); color: #fff; }

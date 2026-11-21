@@ -5,7 +5,7 @@
  * SUS, în capul listei. Numărul se vede în bară, iar lista se deschide cu un
  * clic pe el.
  */
-export const VERSIUNE = '2.1';
+export const VERSIUNE = '2.2';
 
 export interface Intrare {
   v: string;
@@ -15,6 +15,17 @@ export interface Intrare {
 }
 
 export const JURNAL: Intrare[] = [
+  {
+    v: '2.2',
+    data: '2026-11-22',
+    titlu: 'Se poate goli o lună încărcată greșit',
+    schimbari: [
+      'Pe pagina de import, fiecare fișier încărcat are lângă el un buton „✕ Șterge”. Scoți doar programul, doar fișele, sau pe amândouă.',
+      'Ștergerea cere două clicuri: al doilea confirmă, iar butonul se dezarmează singur după cinci secunde dacă te răzgândești.',
+      'Nu mai folosim fereastra de confirmare a browserului nicăieri — în previzualizarea din AI Studio pagina stă într-un cadru care o blochează fără să spună nimic, așa că ștergerea părea că nu face nimic. Era și la ștergerea unui cont.',
+      'Când o lună rămâne goală de tot, dispare și din calendar, și din baza de date.',
+    ],
+  },
   {
     v: '2.1',
     data: '2026-11-22',
