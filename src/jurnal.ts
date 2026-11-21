@@ -5,7 +5,7 @@
  * SUS, în capul listei. Numărul se vede în bară, iar lista se deschide cu un
  * clic pe el.
  */
-export const VERSIUNE = '1.9';
+export const VERSIUNE = '2.0';
 
 export interface Intrare {
   v: string;
@@ -15,6 +15,17 @@ export interface Intrare {
 }
 
 export const JURNAL: Intrare[] = [
+  {
+    v: '2.0',
+    data: '2026-11-22',
+    titlu: 'Cap secție și sortare pe coloane',
+    schimbari: [
+      'Coloana Cap secție: totalul orelor de odihnă pe lună, adunat din coloana „Odihnă” a fișei. Odihna nu intră în norma de lucru, se arată doar ca s-o ai la îndemână.',
+      'Coloana Diferență s-a întors: real minus programat.',
+      'Un clic pe capul oricărei coloane cu cifre sortează de la mare la mic, al doilea de la mic la mare, al treilea revine la ordinea alfabetică. O săgeată arată starea.',
+      'Cine n-are cifra — de pildă omul fără fișă — rămâne la coada listei, în ambele sensuri.',
+    ],
+  },
   {
     v: '1.9',
     data: '2026-11-22',

@@ -189,6 +189,7 @@ export async function citesteFI(
         linii: [],
         orePeZi: {},
         total: 0,
+        odihnaTotal: 0,
       };
       dupaMarca.set(marca, om);
     }
@@ -213,7 +214,7 @@ export async function citesteFI(
       const zi = Number(mzi[1]);
       const ziFinal = mzi[2] ? Number(mzi[2]) : zi;
 
-      const linie: LinieFI = { zi, ziFinal, tren: '', intrare: null, iesire: null, coloane: {}, timpInServiciu: null, total: 0 };
+      const linie: LinieFI = { zi, ziFinal, tren: '', intrare: null, iesire: null, coloane: {}, timpInServiciu: null, odihna: null, total: 0 };
       const trenBucati: string[] = [];
       for (const c of rand.slice(1)) {
         const col = coloanaLui(c.x + c.latime / 2, lim);
@@ -222,6 +223,7 @@ export async function citesteFI(
         else if (col === 5) linie.intrare = citesteDurata(c.text);
         else if (col === 6) linie.iesire = citesteDurata(c.text);
         else if (col === 7) linie.timpInServiciu = citesteDurata(c.text);
+        else if (col === 36) linie.odihna = citesteDurata(c.text);
         else if (COLOANE_NORMA.includes(col)) {
           const v = citesteDurata(c.text);
           if (v != null) linie.coloane[col] = (linie.coloane[col] ?? 0) + v;
@@ -235,6 +237,7 @@ export async function citesteFI(
       linie.total = linie.timpInServiciu ?? totalDinColoane(linie.coloane);
       if (linie.total === 0 && !linie.tren) continue;
       om.linii.push(linie);
+      om.odihnaTotal += linie.odihna ?? 0;
 
       if (linie.total > 0) {
         if (ziFinal !== zi) {

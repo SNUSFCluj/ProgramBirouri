@@ -40,6 +40,7 @@ export function Detalii({ om, zile, an, luna, onInchide }: Props) {
             </b>
           </div>
           <div><span className="muted">Normă</span><b className="mono">{om.fi?.norma != null ? `${om.fi.norma}:00` : '—'}</b></div>
+          <div><span className="muted">Cap secție</span><b className="mono">{om.fi ? scrieDurata(om.fi.odihnaTotal) : '—'}</b></div>
           <div><span className="muted">Festive</span><b className="mono">{om.fi?.festiveInNorma ?? '—'}</b></div>
           <div><span className="muted">Festive peste normă</span>
             <b className={`mono ${(om.fi?.festivePesteNorma ?? 0) > 0 ? 'plus' : ''}`}>{om.fi?.festivePesteNorma ?? '—'}</b>

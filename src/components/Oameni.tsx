@@ -14,10 +14,39 @@ function ore(v: number | null | undefined): string {
   return v == null ? '' : `${v}`;
 }
 
+/** Coloanele după care se poate sorta, cu valoarea fiecăreia. */
+const COLOANE = {
+  programat: (o: OmLegat) => o.programMinute,
+  real: (o: OmLegat) => (o.fi ? o.realMinute : null),
+  diferenta: (o: OmLegat) => (o.fi ? o.realMinute - o.programMinute : null),
+  capSectie: (o: OmLegat) => o.fi?.odihnaTotal ?? null,
+  festive: (o: OmLegat) => o.fi?.festiveInNorma ?? null,
+  pesteNorma: (o: OmLegat) => o.fi?.festivePesteNorma ?? null,
+  raman: (o: OmLegat) => o.fi?.suplimentareFinale ?? null,
+  platite: (o: OmLegat) => o.fi?.suplimentarePlatite ?? null,
+} satisfies Record<string, (o: OmLegat) => number | null>;
+
+type Coloana = keyof typeof COLOANE;
+
+/**
+ * Sortarea trece prin trei stări la fiecare clic: întâi de la mare la mic,
+ * apoi de la mic la mare, apoi înapoi la ordinea alfabetică.
+ */
+interface Sortare { coloana: Coloana; crescator: boolean }
+
 export function Oameni({ legatura, onOm }: Props) {
   const [cauta, setCauta] = useState('');
   const [functie, setFunctie] = useState('');
   const [foaie, setFoaie] = useState('');
+  const [sortare, setSortare] = useState<Sortare | null>(null);
+
+  function apasa(coloana: Coloana) {
+    setSortare((s) => {
+      if (!s || s.coloana !== coloana) return { coloana, crescator: false };
+      if (!s.crescator) return { coloana, crescator: true };
+      return null;
+    });
+  }
 
   const functii = useMemo(() => {
     const s = new Set<string>();
@@ -29,14 +58,41 @@ export function Oameni({ legatura, onOm }: Props) {
 
   const lista = useMemo(() => {
     const q = cuvinteNume(cauta).join(' ');
-    return legatura.oameni
+    const alfabetic = (a: OmLegat, b: OmLegat) => a.program.nume.localeCompare(b.program.nume, 'ro');
+    const filtrat = legatura.oameni
       .filter((o) => (!functie || o.fi?.functia === functie))
       .filter((o) => (!foaie || o.foaie === foaie))
-      .filter((o) => !q || cuvinteNume(o.program.nume).join(' ').includes(q) || (o.fi && cuvinteNume(o.fi.nume).join(' ').includes(q)))
-      .sort((a, b) => a.program.nume.localeCompare(b.program.nume, 'ro'));
-  }, [legatura, cauta, functie, foaie]);
+      .filter((o) => !q || cuvinteNume(o.program.nume).join(' ').includes(q) || (o.fi && cuvinteNume(o.fi.nume).join(' ').includes(q)));
+
+    if (!sortare) return [...filtrat].sort(alfabetic);
+
+    const valoare = COLOANE[sortare.coloana];
+    return [...filtrat].sort((a, b) => {
+      const x = valoare(a);
+      const y = valoare(b);
+      // Cine n-are cifra stă la coadă, indiferent de sens.
+      if (x == null && y == null) return alfabetic(a, b);
+      if (x == null) return 1;
+      if (y == null) return -1;
+      if (x === y) return alfabetic(a, b);
+      return sortare.crescator ? x - y : y - x;
+    });
+  }, [legatura, cauta, functie, foaie, sortare]);
 
   const normaMin = legatura.norma != null ? legatura.norma * 60 : null;
+
+  /** Capul unei coloane care se poate sorta. */
+  const Cap = ({ coloana, titlu, ajutor }: { coloana: Coloana; titlu: string; ajutor?: string }) => {
+    const activ = sortare?.coloana === coloana;
+    return (
+      <th className={`num sortabil${activ ? ' activ' : ''}`} title={ajutor}>
+        <button onClick={() => apasa(coloana)}>
+          {titlu}
+          <span className="sageata">{!activ ? '↕' : sortare.crescator ? '↑' : '↓'}</span>
+        </button>
+      </th>
+    );
+  };
 
   return (
     <div className="oameni">
@@ -57,6 +113,9 @@ export function Oameni({ legatura, onOm }: Props) {
             {functii.map((f) => <option key={f} value={f}>{f}</option>)}
           </select>
         )}
+        {sortare && (
+          <button className="chip" onClick={() => setSortare(null)}>Înapoi la ordinea alfabetică</button>
+        )}
         <span className="muted nr-total">{lista.length} oameni</span>
       </div>
 
@@ -67,16 +126,19 @@ export function Oameni({ legatura, onOm }: Props) {
             <th>Foaie</th>
             <th>Funcția</th>
             <th className="num">Normă</th>
-            <th className="num">Programat</th>
-            <th className="num">Real</th>
-            <th className="num" title="Din caseta „Totaluri lunare” a fișei">Festive</th>
-            <th className="num" title="Din caseta „Totaluri lunare” a fișei">Festive peste normă</th>
-            <th className="num" title="Ore suplimentare finale, din fișă — ce rămâne pe luna următoare">Rămân</th>
-            <th className="num" title="Ore suplimentare plătite, din fișă">Plătite</th>
+            <Cap coloana="programat" titlu="Programat" />
+            <Cap coloana="real" titlu="Real" ajutor="Orele care intră în normă, adunate din fișă" />
+            <Cap coloana="diferenta" titlu="Diferență" ajutor="Real minus programat" />
+            <Cap coloana="capSectie" titlu="Cap secție" ajutor="Totalul orelor de odihnă din fișă" />
+            <Cap coloana="festive" titlu="Festive" ajutor="Din caseta „Totaluri lunare” a fișei" />
+            <Cap coloana="pesteNorma" titlu="Peste normă" ajutor="Festive peste normă, din caseta fișei" />
+            <Cap coloana="raman" titlu="Rămân" ajutor="Ore suplimentare finale — ce rămâne pe luna următoare" />
+            <Cap coloana="platite" titlu="Plătite" ajutor="Ore suplimentare plătite, din fișă" />
           </tr>
         </thead>
         <tbody>
           {lista.map((o, i) => {
+            const dif = o.fi ? o.realMinute - o.programMinute : 0;
             return (
               <tr key={`${o.program.nume}-${i}`} onClick={() => onOm(o)}>
                 <td>
@@ -93,6 +155,10 @@ export function Oameni({ legatura, onOm }: Props) {
                 </td>
                 <td className="num mono">{scrieDurata(o.programMinute)}</td>
                 <td className="num mono">{o.fi ? scrieDurata(o.realMinute) : '—'}</td>
+                <td className={`num mono ${dif > 0 ? 'plus' : dif < 0 ? 'minus' : ''}`}>
+                  {o.fi ? (dif > 0 ? '+' : '') + scrieDurata(dif) : ''}
+                </td>
+                <td className="num mono">{o.fi ? scrieDurata(o.fi.odihnaTotal) : ''}</td>
                 <td className="num mono">{ore(o.fi?.festiveInNorma)}</td>
                 <td className={`num mono ${(o.fi?.festivePesteNorma ?? 0) > 0 ? 'plus' : ''}`}>
                   {ore(o.fi?.festivePesteNorma)}

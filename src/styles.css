@@ -346,3 +346,15 @@ table.grila tr.r-real td.gol { opacity: 0.4; }
 .jurnal-cap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .jurnal-i ul { margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 1.65; color: var(--muted); }
 .jurnal-i li { margin-bottom: 4px; }
+
+/* Sortarea pe coloane */
+th.sortabil { padding: 0; }
+th.sortabil button {
+  all: unset; box-sizing: border-box; cursor: pointer; width: 100%;
+  display: flex; align-items: center; justify-content: flex-end; gap: 5px;
+  padding: 9px 12px; font-weight: 600; font-size: 12px; white-space: nowrap;
+}
+th.sortabil button:hover { background: var(--hover); }
+th.sortabil .sageata { font-size: 11px; opacity: 0.35; }
+th.sortabil.activ { color: var(--accent); }
+th.sortabil.activ .sageata { opacity: 1; }

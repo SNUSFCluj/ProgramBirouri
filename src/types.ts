@@ -52,6 +52,8 @@ export interface LinieFI {
   coloane: Record<number, number>;
   /** Coloana 7, „Timp în serviciu” — totalul liniei așa cum îl scrie fișa. */
   timpInServiciu: number | null;
+  /** Coloana 36, „Odihnă”. Nu intră în normă; o ținem doar ca s-o putem arăta. */
+  odihna: number | null;
   /** Totalul liniei, în minute. */
   total: number;
 }
@@ -77,6 +79,8 @@ export interface OmFI {
   orePeZi: Record<number, number>;
   /** Totalul lunii, în minute. */
   total: number;
+  /** Totalul orelor de odihnă pe lună, în minute. */
+  odihnaTotal: number;
 }
 
 /** Fișele individuale importate din PDF. */
